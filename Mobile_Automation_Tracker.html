@@ -1212,6 +1212,13 @@
         });
     }
 
+    // Check if data has valid structure
+    function isValidData(d) {
+        return d && d.android && d.ios && 
+               typeof d.android.weeklyTargets === 'object' && 
+               typeof d.android.weeklyActuals === 'object';
+    }
+    
     // Load data from Google Sheets (with localStorage fallback)
     async function loadData() {
         // Try Google Sheets first
@@ -1221,7 +1228,7 @@
                 const response = await fetch(GOOGLE_SCRIPT_URL);
                 const result = await response.json();
                 
-                if (result.success && result.data) {
+                if (result.success && isValidData(result.data)) {
                     data = result.data;
                     initializeDefaults();
                     // Also save to localStorage as cache
@@ -1229,6 +1236,8 @@
                     showSyncStatus('✅ Synced from cloud');
                     updateLastUpdated();
                     return;
+                } else {
+                    showSyncStatus('☁️ No cloud data yet');
                 }
             } catch (e) {
                 console.error('Error loading from Google Sheets:', e);
@@ -1301,7 +1310,7 @@
             const response = await fetch(GOOGLE_SCRIPT_URL);
             const result = await response.json();
             
-            if (result.success && result.data) {
+            if (result.success && isValidData(result.data)) {
                 data = result.data;
                 initializeDefaults();
                 localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
@@ -1310,8 +1319,8 @@
                 showSyncStatus('✅ Synced from cloud');
                 alert('✅ Data synced from cloud!');
             } else {
-                showSyncStatus('⚠️ No cloud data');
-                alert('⚠️ No data found in cloud storage.');
+                showSyncStatus('☁️ No cloud data yet');
+                alert('ℹ️ No saved data in cloud yet. Save your data first to sync it to the cloud!');
             }
         } catch (e) {
             console.error('Sync error:', e);
