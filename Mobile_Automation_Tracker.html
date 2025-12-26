@@ -500,6 +500,52 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--axos-navy-light);
         }
+        
+        /* Modal styles */
+        .modal-overlay {
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal input:focus, .modal select:focus {
+            outline: none;
+            border-color: var(--axos-orange) !important;
+            box-shadow: 0 0 0 3px rgba(250, 167, 74, 0.2);
+        }
+        
+        .modal button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Weekly Log styles */
+        #weeklyLogEntries::-webkit-scrollbar {
+            width: 6px;
+        }
+        #weeklyLogEntries::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        #weeklyLogEntries::-webkit-scrollbar-thumb {
+            background: var(--axos-orange);
+            border-radius: 3px;
+        }
+        
+        .platform-log-btn {
+            transition: all 0.2s ease;
+        }
+        .platform-log-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        /* Test entries list in modal */
+        #testEntriesList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #testEntriesList::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        #testEntriesList::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -810,7 +856,7 @@
     <h2>📱 Backlog Breakdown by Vertical</h2>
     
     <div style="overflow-x: auto; margin: 24px 0; border-radius: 16px; box-shadow: 0 4px 12px rgba(30, 56, 96, 0.1);">
-        <table style="width: 100%; border-collapse: collapse; min-width: 500px;">
+        <table id="backlogTable" style="width: 100%; border-collapse: collapse; min-width: 500px;">
             <thead>
                 <tr style="background: linear-gradient(135deg, #1E3860 0%, #2A4A7A 100%); color: white;">
                     <th style="padding: 14px 16px; text-align: left; font-weight: 700; border: none;">Vertical</th>
@@ -822,87 +868,89 @@
                 </tr>
             </thead>
             <tbody>
-                <tr style="background: #fff;">
+                <tr data-vertical="login" style="background: #fff;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">🔐 Login</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">2</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">9</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">1</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">12</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">2</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">9</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">1</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">12</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">3.3%</td>
                 </tr>
-                <tr style="background: #f9f9f9;">
+                <tr data-vertical="registration" style="background: #f9f9f9;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">📝 Registration</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">1</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">14</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">0</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">15</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">1</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">14</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">0</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">15</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">4.1%</td>
                 </tr>
-                <tr style="background: #fff;">
+                <tr data-vertical="home" style="background: #fff;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">🏠 Home</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">1</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">3</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">3</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">7</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">1</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">3</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">3</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">7</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">1.9%</td>
                 </tr>
-                <tr style="background: #f9f9f9;">
+                <tr data-vertical="bank" style="background: #f9f9f9;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">🏦 Bank</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">10</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">77</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">12</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">99</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">10</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">77</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">12</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">99</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #000; font-weight: 700; background: #fffae6;">27.0%</td>
                 </tr>
-                <tr style="background: #fff;">
+                <tr data-vertical="borrow" style="background: #fff;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">💳 Borrow</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">24</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">19</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">9</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">52</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">24</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">19</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">9</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">52</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">14.2%</td>
                 </tr>
-                <tr style="background: #f9f9f9;">
+                <tr data-vertical="invest" style="background: #f9f9f9;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">📈 Invest</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">7</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">42</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">44</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">93</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">7</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">42</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">44</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">93</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #000; font-weight: 700; background: #fffae6;">25.3%</td>
                 </tr>
-                <tr style="background: #fff;">
+                <tr data-vertical="plan" style="background: #fff;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">📋 Plan</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">0</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">17</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">33</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">50</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">0</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">17</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">33</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">50</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">13.6%</td>
                 </tr>
-                <tr style="background: #f9f9f9;">
+                <tr data-vertical="mega-menu" style="background: #f9f9f9;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">☰ Mega Menu</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">2</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">26</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">9</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">37</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">2</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">26</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">9</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">37</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">10.1%</td>
                 </tr>
-                <tr style="background: #fff;">
+                <tr data-vertical="evo-chat" style="background: #fff;">
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; font-weight: 500;">💬 Evo Chat</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">0</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">0</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">2</td>
-                    <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">2</td>
+                    <td class="p0-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #de350b; font-weight: 600;">0</td>
+                    <td class="p1-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #ff8b00; font-weight: 600;">0</td>
+                    <td class="p2-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #1E3860; font-weight: 600;">2</td>
+                    <td class="total-cell" style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; font-weight: 700;">2</td>
                     <td style="padding: 10px 16px; border-bottom: 1px solid #ddd; text-align: center; color: #5e6c84;">0.5%</td>
                 </tr>
+            </tbody>
+            <tfoot>
                 <tr style="background: linear-gradient(135deg, #1E3860 0%, #2A4A7A 100%); color: white; font-weight: 700;">
                     <td style="padding: 14px 16px; font-weight: 800; border: none;">TOTAL</td>
-                    <td style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">47</td>
-                    <td style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">207</td>
-                    <td style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">113</td>
-                    <td style="padding: 14px 16px; text-align: center; border: none; font-weight: 800; color: #FAA74A;">367</td>
+                    <td class="p0-total" style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">47</td>
+                    <td class="p1-total" style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">207</td>
+                    <td class="p2-total" style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">113</td>
+                    <td class="grand-total" style="padding: 14px 16px; text-align: center; border: none; font-weight: 800; color: #FAA74A;">367</td>
                     <td style="padding: 14px 16px; text-align: center; border: none; font-weight: 700;">100%</td>
                 </tr>
-            </tbody>
+            </tfoot>
         </table>
     </div>
     
@@ -985,6 +1033,177 @@
 
     <!-- Hidden file input for import -->
     <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
+    <hr>
+
+    <h2>📋 Weekly Log</h2>
+    <div id="weeklyLogContainer" style="margin: 24px 0;">
+        <!-- Week Navigation -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 12px 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px;">
+            <button onclick="navigateWeeklyLog(-1)" style="padding: 8px 16px; border: none; border-radius: 8px; background: var(--axos-navy); color: white; cursor: pointer; font-weight: 600;">
+                ◀ Prev Week
+            </button>
+            <div style="text-align: center;">
+                <span id="weeklyLogLabel" style="font-weight: 700; color: var(--axos-navy); font-size: 14px;">Current Week</span>
+            </div>
+            <button onclick="navigateWeeklyLog(1)" style="padding: 8px 16px; border: none; border-radius: 8px; background: var(--axos-navy); color: white; cursor: pointer; font-weight: 600;">
+                Next Week ▶
+            </button>
+        </div>
+        
+        <!-- Platform Toggle -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <button id="logPlatformAndroid" class="platform-log-btn active" onclick="setLogPlatform('android')" style="padding: 10px 20px; border: 2px solid #3ddc84; border-radius: 8px; background: #d1fae5; color: #065f46; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <svg style="width:16px;height:16px;" viewBox="-147 -70 294 345" fill="#065f46"><ellipse cy="41" rx="91" ry="84"/><rect rx="22" x="-91" y="20" width="182" height="182"/></svg> Android
+            </button>
+            <button id="logPlatformIOS" class="platform-log-btn" onclick="setLogPlatform('ios')" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; color: #374151; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <svg style="width:14px;height:14px;" viewBox="0 0 814 1000" fill="#374151"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76.5 0-103.7 40.8-165.9 40.8s-105.6-57-155.5-127C46.7 790.7 0 663 0 541.8c0-194.4 126.4-297.5 250.8-297.5 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2z"/></svg> iOS
+            </button>
+        </div>
+        
+        <!-- Warnings Section -->
+        <div id="weeklyLogWarnings" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;">
+            <strong style="color: #92400e;">⚠️ Warnings:</strong>
+            <ul id="warningsList" style="margin: 8px 0 0 16px; color: #92400e; font-size: 13px;"></ul>
+        </div>
+        
+        <!-- Log Entries -->
+        <div id="weeklyLogEntries" style="max-height: 600px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 12px; background: white;">
+            <p style="color: #64748b; text-align: center; padding: 40px;">No entries for this week. Click on an "Actual" cell to add test entries.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Test Entry Modal -->
+<div class="modal-overlay" id="testEntryModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease;">
+    <div class="modal" style="background: white; border-radius: 20px; padding: 0; width: 800px; max-width: 95%; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: translateY(-20px); transition: transform 0.3s ease;">
+        <!-- Modal Header -->
+        <div style="background: var(--gradient-navy); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.25rem;" id="modalTitle">📝 Enter Weekly Tests</h3>
+                <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.8;" id="modalSubtitle">Week X - Platform</p>
+            </div>
+            <button onclick="closeTestEntryModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px;">✕</button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 24px; max-height: calc(90vh - 180px); overflow-y: auto;">
+            <!-- Total Summary -->
+            <div style="display: flex; gap: 16px; margin-bottom: 24px; padding: 16px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; border: 2px solid #10b981; flex-wrap: wrap;">
+                <div style="flex: 1; text-align: center; min-width: 80px;">
+                    <div style="font-size: 32px; font-weight: 800; color: var(--axos-navy);" id="modalTotalCount">0</div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Total Tests</div>
+                </div>
+                <div style="flex: 1; text-align: center; border-left: 1px solid #a7f3d0; padding-left: 16px; min-width: 80px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #3ddc84;" id="modalAndroidCount">0</div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">🤖 Android</div>
+                </div>
+                <div style="flex: 1; text-align: center; border-left: 1px solid #a7f3d0; padding-left: 16px; min-width: 80px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #374151;" id="modalIOSCount">0</div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">🍎 iOS</div>
+                </div>
+                <div style="flex: 2; text-align: center; border-left: 1px solid #a7f3d0; padding-left: 16px; min-width: 150px;">
+                    <div style="font-size: 14px; font-weight: 600; color: var(--axos-navy);" id="modalEngineerBreakdown">-</div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Per Engineer</div>
+                </div>
+            </div>
+            
+            <!-- Add Test Form -->
+            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="margin: 0 0 16px 0; color: var(--axos-navy); display: flex; align-items: center; gap: 8px;">
+                    ➕ Add New Test
+                </h4>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--axos-navy); margin-bottom: 4px; text-transform: uppercase;">Engineer</label>
+                        <select id="testEngineer" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                    <div style="flex: 2; min-width: 200px;">
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--axos-navy); margin-bottom: 4px; text-transform: uppercase;">Test Name</label>
+                        <input type="text" id="testName" placeholder="e.g., Login - Biometric Authentication" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--axos-navy); margin-bottom: 4px; text-transform: uppercase;">ADO Task # or URL</label>
+                        <input type="text" id="testAdoId" placeholder="ID or full URL" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; box-sizing: border-box;" title="Enter ADO ID (e.g., 2194282) or paste the full URL">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--axos-navy); margin-bottom: 4px; text-transform: uppercase;">Platform</label>
+                        <select id="testPlatform" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);">
+                            <option value="both">📱 Both</option>
+                            <option value="android">🤖 Android</option>
+                            <option value="ios">🍎 iOS</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--axos-navy); margin-bottom: 4px; text-transform: uppercase;">Vertical</label>
+                        <select id="testVertical" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="login">🔐 Login</option>
+                            <option value="registration">📝 Registration</option>
+                            <option value="home">🏠 Home</option>
+                            <option value="bank">🏦 Bank</option>
+                            <option value="borrow">💳 Borrow</option>
+                            <option value="invest">📈 Invest</option>
+                            <option value="plan">📋 Plan</option>
+                            <option value="mega-menu">☰ Mega Menu</option>
+                            <option value="evo-chat">💬 Evo Chat</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--axos-navy); margin-bottom: 4px; text-transform: uppercase;">Priority</label>
+                        <select id="testPriority" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="P0">🔴 P0 - Critical</option>
+                            <option value="P1" selected>🟠 P1 - High</option>
+                            <option value="P2">🔵 P2 - Medium</option>
+                        </select>
+                    </div>
+                    <div style="flex: 0; display: flex; align-items: flex-end;">
+                        <button onclick="addTestEntry()" style="padding: 10px 24px; background: var(--gradient-orange); border: none; border-radius: 8px; color: var(--axos-navy); font-weight: 600; cursor: pointer; white-space: nowrap;">
+                            ➕ Add Test
+                        </button>
+                    </div>
+                </div>
+                <!-- Add New Engineer -->
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                    <button onclick="showAddEngineerForm()" id="addEngineerBtn" style="padding: 6px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; color: #64748b; font-size: 12px; cursor: pointer;">
+                        👤 Add New Engineer
+                    </button>
+                    <div id="addEngineerForm" style="display: none; margin-top: 8px;">
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="newEngineerName" placeholder="Engineer name" style="flex: 1; padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px;">
+                            <button onclick="addNewEngineer()" style="padding: 8px 16px; background: #10b981; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;">Add</button>
+                            <button onclick="hideAddEngineerForm()" style="padding: 8px 12px; background: #fee2e2; border: none; border-radius: 6px; color: #dc2626; cursor: pointer;">✕</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Test Entries List -->
+            <div>
+                <h4 style="margin: 0 0 12px 0; color: var(--axos-navy); display: flex; align-items: center; justify-content: space-between;">
+                    <span>📋 Test Entries</span>
+                    <span style="font-size: 12px; color: #64748b; font-weight: 500;" id="entriesCount">0 entries</span>
+                </h4>
+                <div id="testEntriesList" style="border: 1px solid #e2e8f0; border-radius: 8px; max-height: 300px; overflow-y: auto;">
+                    <p style="color: #64748b; text-align: center; padding: 24px; margin: 0;">No tests added yet. Use the form above to add tests.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 13px; color: #64748b;">
+                <span id="modalSaveHint">Changes will be saved when you click Save</span>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeTestEntryModal()" style="padding: 10px 20px; background: #fee2e2; border: none; border-radius: 8px; color: #dc2626; font-weight: 600; cursor: pointer;">Cancel</button>
+                <button onclick="saveTestEntries()" style="padding: 10px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">💾 Save Tests</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Signature Footer -->
@@ -1179,18 +1398,59 @@
         totalScriptsAndroid: CONFIG.totalScriptsAndroid,
         totalScriptsIOS: CONFIG.totalScriptsIOS,
         android: {
-        weeklyTargets: {},
-            weeklyActuals: {}
+            weeklyTargets: {},
+            weeklyActuals: {},
+            weeklyEntries: {} // { weekKey: [{ id, engineer, testName, adoId, vertical, priority, timestamp }] }
         },
         ios: {
             weeklyTargets: {},
-            weeklyActuals: {}
+            weeklyActuals: {},
+            weeklyEntries: {}
         },
+        engineers: [
+            { id: 'rishabh', name: 'Rishabh Srivastava' },
+            { id: 'vijay', name: 'Vijay Lachwani' },
+            { id: 'jai', name: 'Jai Saxena' }
+        ],
         lastUpdated: new Date().toISOString()
     };
+    
+    // Backlog data (static baseline)
+    const BACKLOG_BASELINE = {
+        'login': { P0: 2, P1: 9, P2: 1, total: 12, emoji: '🔐', name: 'Login' },
+        'registration': { P0: 1, P1: 14, P2: 0, total: 15, emoji: '📝', name: 'Registration' },
+        'home': { P0: 1, P1: 3, P2: 3, total: 7, emoji: '🏠', name: 'Home' },
+        'bank': { P0: 10, P1: 77, P2: 12, total: 99, emoji: '🏦', name: 'Bank' },
+        'borrow': { P0: 24, P1: 19, P2: 9, total: 52, emoji: '💳', name: 'Borrow' },
+        'invest': { P0: 7, P1: 42, P2: 44, total: 93, emoji: '📈', name: 'Invest' },
+        'plan': { P0: 0, P1: 17, P2: 33, total: 50, emoji: '📋', name: 'Plan' },
+        'mega-menu': { P0: 2, P1: 26, P2: 9, total: 37, emoji: '☰', name: 'Mega Menu' },
+        'evo-chat': { P0: 0, P1: 0, P2: 2, total: 2, emoji: '💬', name: 'Evo Chat' }
+    };
+    
+    // Modal state
+    let currentModalWeekKey = null;
+    let tempTestEntries = []; // Now stores entries for BOTH platforms
+    
+    // Weekly log state
+    let weeklyLogWeekIdx = 0; // Index into WEEKS array
+    let weeklyLogPlatform = 'android';
 
     // Initialize default values
     function initializeDefaults() {
+        // Ensure weeklyEntries objects exist
+        if (!data.android.weeklyEntries) data.android.weeklyEntries = {};
+        if (!data.ios.weeklyEntries) data.ios.weeklyEntries = {};
+        
+        // Ensure engineers array exists with defaults
+        if (!data.engineers || !Array.isArray(data.engineers)) {
+            data.engineers = [
+                { id: 'rishabh', name: 'Rishabh Srivastava' },
+                { id: 'vijay', name: 'Vijay Lachwani' },
+                { id: 'jai', name: 'Jai Saxena' }
+            ];
+        }
+        
         WEEKS.forEach((w, idx) => {
             const key = `${w.year}-W${w.week}`;
             
@@ -1201,6 +1461,9 @@
             if (data.android.weeklyActuals[key] === undefined) {
                 data.android.weeklyActuals[key] = null;
             }
+            if (data.android.weeklyEntries[key] === undefined) {
+                data.android.weeklyEntries[key] = [];
+            }
             
             // iOS
             if (data.ios.weeklyTargets[key] === undefined) {
@@ -1208,6 +1471,9 @@
             }
             if (data.ios.weeklyActuals[key] === undefined) {
                 data.ios.weeklyActuals[key] = null;
+            }
+            if (data.ios.weeklyEntries[key] === undefined) {
+                data.ios.weeklyEntries[key] = [];
             }
         });
     }
@@ -1316,6 +1582,8 @@
                 localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
                 renderTable();
                 updateSummary();
+                renderWeeklyLog();
+                updateBacklogBreakdown();
                 showSyncStatus('✅ Synced from cloud');
                 alert('✅ Data synced from cloud!');
             } else {
@@ -1367,6 +1635,8 @@
                     saveData();
                     renderTable();
                     updateSummary();
+                    renderWeeklyLog();
+                    updateBacklogBreakdown();
                     alert('✅ Data imported successfully!');
                 } catch (err) {
                     alert('❌ Error importing data: Invalid JSON file');
@@ -1384,25 +1654,36 @@
                 totalScriptsAndroid: CONFIG.totalScriptsAndroid,
                 totalScriptsIOS: CONFIG.totalScriptsIOS,
                 android: {
-                weeklyTargets: {},
-                    weeklyActuals: {}
+                    weeklyTargets: {},
+                    weeklyActuals: {},
+                    weeklyEntries: {}
                 },
                 ios: {
                     weeklyTargets: {},
-                    weeklyActuals: {}
+                    weeklyActuals: {},
+                    weeklyEntries: {}
                 },
+                engineers: [
+                    { id: 'rishabh', name: 'Rishabh Srivastava' },
+                    { id: 'vijay', name: 'Vijay Lachwani' },
+                    { id: 'jai', name: 'Jai Saxena' }
+                ],
                 lastUpdated: new Date().toISOString()
             };
             WEEKS.forEach((w, idx) => {
                 const key = `${w.year}-W${w.week}`;
                 data.android.weeklyTargets[key] = CONFIG.defaultWeeklyTarget;
                 data.android.weeklyActuals[key] = null;
+                data.android.weeklyEntries[key] = [];
                 data.ios.weeklyTargets[key] = CONFIG.defaultWeeklyTarget;
                 data.ios.weeklyActuals[key] = null;
+                data.ios.weeklyEntries[key] = [];
             });
             saveData();
             renderTable();
             updateSummary();
+            renderWeeklyLog();
+            updateBacklogBreakdown();
         }
     }
 
@@ -1509,8 +1790,15 @@
         }
     }
 
-    // Make cell editable
+    // Make cell editable (for targets) or open modal (for actuals)
     function makeEditable(cell, weekKey, type, platform) {
+        // For actual cells, open the modal instead of inline editing
+        if (type === 'actual') {
+            openTestEntryModal(weekKey, platform);
+            return;
+        }
+        
+        // For target cells, use inline editing
         cell.contentEditable = true;
         cell.focus();
         
@@ -1529,8 +1817,6 @@
             
             if (type === 'target') {
                 platformData.weeklyTargets[weekKey] = numValue || CONFIG.defaultWeeklyTarget;
-            } else {
-                platformData.weeklyActuals[weekKey] = numValue;
             }
             
             showSaveStatus(false);
@@ -2004,11 +2290,623 @@
         }
     }
 
+    // ========================================
+    // TEST ENTRY MODAL FUNCTIONS
+    // ========================================
+    
+    function openTestEntryModal(weekKey, platform) {
+        currentModalWeekKey = weekKey;
+        
+        // Parse week info from key
+        const weekInfo = WEEKS.find(w => `${w.year}-W${w.week}` === weekKey);
+        
+        // Update modal title - now shows both platforms
+        document.getElementById('modalTitle').innerHTML = `📝 Enter Weekly Tests`;
+        document.getElementById('modalSubtitle').textContent = `Week ${weekInfo ? weekInfo.week : ''} (${weekInfo ? weekInfo.dates : ''}) - ${weekInfo ? weekInfo.month : ''}`;
+        
+        // Load existing entries for this week from BOTH platforms (merged)
+        const androidEntries = (data.android.weeklyEntries[weekKey] || []).map(e => ({...e, platform: e.platform || 'android'}));
+        const iosEntries = (data.ios.weeklyEntries[weekKey] || []).map(e => ({...e, platform: e.platform || 'ios'}));
+        
+        // Merge entries, avoiding duplicates by ID
+        const mergedEntries = [...androidEntries];
+        iosEntries.forEach(iosEntry => {
+            if (!mergedEntries.find(e => e.id === iosEntry.id)) {
+                mergedEntries.push(iosEntry);
+            }
+        });
+        
+        tempTestEntries = JSON.parse(JSON.stringify(mergedEntries));
+        
+        // Populate engineer dropdown
+        populateEngineerDropdown();
+        
+        // Render entries list
+        renderTestEntriesList();
+        updateModalTotals();
+        
+        // Show modal
+        const modal = document.getElementById('testEntryModal');
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        modal.querySelector('.modal').style.transform = 'translateY(0)';
+    }
+    
+    function closeTestEntryModal() {
+        const modal = document.getElementById('testEntryModal');
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+        modal.querySelector('.modal').style.transform = 'translateY(-20px)';
+        
+        // Clear temp data
+        tempTestEntries = [];
+        currentModalWeekKey = null;
+        
+        // Clear form
+        document.getElementById('testName').value = '';
+        document.getElementById('testAdoId').value = '';
+    }
+    
+    function populateEngineerDropdown() {
+        const select = document.getElementById('testEngineer');
+        select.innerHTML = data.engineers.map(e => 
+            `<option value="${e.id}">${e.name}</option>`
+        ).join('');
+    }
+    
+    function showAddEngineerForm() {
+        document.getElementById('addEngineerBtn').style.display = 'none';
+        document.getElementById('addEngineerForm').style.display = 'block';
+        document.getElementById('newEngineerName').focus();
+    }
+    
+    function hideAddEngineerForm() {
+        document.getElementById('addEngineerBtn').style.display = 'inline-block';
+        document.getElementById('addEngineerForm').style.display = 'none';
+        document.getElementById('newEngineerName').value = '';
+    }
+    
+    function addNewEngineer() {
+        const name = document.getElementById('newEngineerName').value.trim();
+        if (!name) {
+            alert('Please enter an engineer name');
+            return;
+        }
+        
+        const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+        data.engineers.push({ id, name });
+        
+        populateEngineerDropdown();
+        document.getElementById('testEngineer').value = id;
+        hideAddEngineerForm();
+        showSaveStatus(false);
+    }
+    
+    // Parse ADO ID from either a plain ID or a full URL
+    function parseAdoId(input) {
+        if (!input) return null;
+        
+        const trimmed = input.trim();
+        
+        // If it's just a number, return it
+        if (/^\d+$/.test(trimmed)) {
+            return trimmed;
+        }
+        
+        // Try to extract ID from URL patterns like:
+        // https://bofaz.visualstudio.com/Project/_workitems/edit/2194282
+        // https://dev.azure.com/bofaz/Project/_workitems/edit/2194282
+        const urlPattern = /_workitems\/edit\/(\d+)/;
+        const match = trimmed.match(urlPattern);
+        if (match) {
+            return match[1];
+        }
+        
+        // Also try pattern with just /edit/ at end
+        const simplePattern = /\/(\d+)\s*$/;
+        const simpleMatch = trimmed.match(simplePattern);
+        if (simpleMatch) {
+            return simpleMatch[1];
+        }
+        
+        // If nothing matched but there are digits, try to extract them
+        const digitsOnly = trimmed.replace(/\D/g, '');
+        if (digitsOnly.length >= 5) { // ADO IDs are typically 6-7 digits
+            return digitsOnly;
+        }
+        
+        return null;
+    }
+    
+    function addTestEntry() {
+        const engineerId = document.getElementById('testEngineer').value;
+        const testName = document.getElementById('testName').value.trim();
+        const adoInput = document.getElementById('testAdoId').value.trim();
+        const vertical = document.getElementById('testVertical').value;
+        const priority = document.getElementById('testPriority').value;
+        const platform = document.getElementById('testPlatform').value;
+        
+        if (!testName) {
+            alert('Please enter a test name');
+            return;
+        }
+        
+        // Parse ADO ID from input (handles both plain ID and full URL)
+        const adoId = parseAdoId(adoInput);
+        
+        // Check for duplicates
+        const duplicateAdo = adoId && tempTestEntries.find(e => e.adoId === adoId);
+        const duplicateName = tempTestEntries.find(e => e.testName.toLowerCase() === testName.toLowerCase());
+        
+        if (duplicateAdo) {
+            if (!confirm(`⚠️ Warning: ADO #${adoId} already exists in this week's entries. Add anyway?`)) {
+                return;
+            }
+        }
+        
+        if (duplicateName) {
+            if (!confirm(`⚠️ Warning: A test with name "${testName}" already exists. Add anyway?`)) {
+                return;
+            }
+        }
+        
+        const entry = {
+            id: 'entry-' + Date.now(),
+            engineer: engineerId,
+            testName,
+            adoId: adoId || null,
+            vertical,
+            priority,
+            platform, // 'android', 'ios', or 'both'
+            timestamp: new Date().toISOString()
+        };
+        
+        tempTestEntries.push(entry);
+        
+        // Clear form
+        document.getElementById('testName').value = '';
+        document.getElementById('testAdoId').value = '';
+        
+        renderTestEntriesList();
+        updateModalTotals();
+    }
+    
+    function removeTestEntry(entryId) {
+        tempTestEntries = tempTestEntries.filter(e => e.id !== entryId);
+        renderTestEntriesList();
+        updateModalTotals();
+    }
+    
+    function renderTestEntriesList() {
+        const container = document.getElementById('testEntriesList');
+        
+        if (tempTestEntries.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 24px; margin: 0;">No tests added yet. Use the form above to add tests.</p>';
+            document.getElementById('entriesCount').textContent = '0 entries';
+            return;
+        }
+        
+        // Group by engineer
+        const byEngineer = {};
+        tempTestEntries.forEach(entry => {
+            if (!byEngineer[entry.engineer]) {
+                byEngineer[entry.engineer] = [];
+            }
+            byEngineer[entry.engineer].push(entry);
+        });
+        
+        let html = '';
+        Object.entries(byEngineer).forEach(([engineerId, entries]) => {
+            const engineer = data.engineers.find(e => e.id === engineerId);
+            const engineerName = engineer ? engineer.name : engineerId;
+            
+            html += `
+                <div style="border-bottom: 1px solid #e2e8f0;">
+                    <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 10px 16px; font-weight: 600; color: var(--axos-navy); display: flex; justify-content: space-between; align-items: center;">
+                        <span>👤 ${engineerName}</span>
+                        <span style="background: var(--axos-orange); color: var(--axos-navy); padding: 2px 10px; border-radius: 12px; font-size: 12px;">${entries.length}</span>
+                    </div>
+                    ${entries.map(entry => `
+                        <div style="padding: 10px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f5f9;">
+                            <span style="font-size: 16px;">${getVerticalEmoji(entry.vertical)}</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500; color: var(--axos-navy); display: flex; align-items: center; gap: 8px;">
+                                    ${entry.testName}
+                                    ${getPlatformBadge(entry.platform)}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap;">
+                                    ${entry.adoId ? `<a href="https://bofaz.visualstudio.com/Automation%20Architecture/_workitems/edit/${entry.adoId}" target="_blank" style="color: #3b82f6; text-decoration: none;">ADO #${entry.adoId}</a>` : '<span style="color: #94a3b8;">No ADO</span>'}
+                                    <span style="color: #e2e8f0;">|</span>
+                                    <span>${BACKLOG_BASELINE[entry.vertical]?.name || entry.vertical}</span>
+                                    <span style="color: #e2e8f0;">|</span>
+                                    <span style="color: ${entry.priority === 'P0' ? '#dc2626' : entry.priority === 'P1' ? '#f59e0b' : '#3b82f6'};">${entry.priority}</span>
+                                </div>
+                            </div>
+                            <button onclick="removeTestEntry('${entry.id}')" style="padding: 4px 8px; background: #fee2e2; border: none; border-radius: 4px; color: #dc2626; cursor: pointer; font-size: 12px;">🗑️</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        document.getElementById('entriesCount').textContent = `${tempTestEntries.length} entries`;
+    }
+    
+    function updateModalTotals() {
+        const total = tempTestEntries.length;
+        document.getElementById('modalTotalCount').textContent = total;
+        
+        // Count by platform
+        const androidCount = tempTestEntries.filter(e => e.platform === 'android' || e.platform === 'both').length;
+        const iosCount = tempTestEntries.filter(e => e.platform === 'ios' || e.platform === 'both').length;
+        
+        document.getElementById('modalAndroidCount').textContent = androidCount;
+        document.getElementById('modalIOSCount').textContent = iosCount;
+        
+        // Count by engineer
+        const byEngineer = {};
+        tempTestEntries.forEach(entry => {
+            const engineer = data.engineers.find(e => e.id === entry.engineer);
+            const name = engineer ? engineer.name.split(' ')[0] : entry.engineer;
+            byEngineer[name] = (byEngineer[name] || 0) + 1;
+        });
+        
+        const breakdown = Object.entries(byEngineer)
+            .map(([name, count]) => `${name}: ${count}`)
+            .join(' | ') || '-';
+        
+        document.getElementById('modalEngineerBreakdown').textContent = breakdown;
+    }
+    
+    function saveTestEntries() {
+        if (!currentModalWeekKey) return;
+        
+        // Filter entries by platform
+        const androidEntries = tempTestEntries.filter(e => e.platform === 'android' || e.platform === 'both');
+        const iosEntries = tempTestEntries.filter(e => e.platform === 'ios' || e.platform === 'both');
+        
+        // Save all entries to a shared store (we'll use android.weeklyEntries as the main store)
+        // This keeps all entries in one place, the platform field determines the count
+        data.android.weeklyEntries[currentModalWeekKey] = tempTestEntries;
+        data.ios.weeklyEntries[currentModalWeekKey] = tempTestEntries; // Same reference for easy sync
+        
+        // Update the actual counts for each platform
+        data.android.weeklyActuals[currentModalWeekKey] = androidEntries.length > 0 ? androidEntries.length : null;
+        data.ios.weeklyActuals[currentModalWeekKey] = iosEntries.length > 0 ? iosEntries.length : null;
+        
+        showSaveStatus(false);
+        closeTestEntryModal();
+        renderTable();
+        updateSummary();
+        renderWeeklyLog();
+        updateBacklogBreakdown();
+        
+        const androidCount = androidEntries.length;
+        const iosCount = iosEntries.length;
+        const bothCount = tempTestEntries.filter(e => e.platform === 'both').length;
+        
+        let message = `✅ Saved ${tempTestEntries.length} test entries for this week!\n\n`;
+        message += `📱 Android: ${androidCount} tests\n`;
+        message += `🍎 iOS: ${iosCount} tests\n`;
+        if (bothCount > 0) {
+            message += `\n(${bothCount} tests marked for both platforms)`;
+        }
+        
+        alert(message);
+    }
+    
+    function getVerticalEmoji(vertical) {
+        const emojis = {
+            'login': '🔐',
+            'registration': '📝',
+            'home': '🏠',
+            'bank': '🏦',
+            'borrow': '💳',
+            'invest': '📈',
+            'plan': '📋',
+            'mega-menu': '☰',
+            'evo-chat': '💬'
+        };
+        return emojis[vertical] || '📌';
+    }
+    
+    function getPlatformBadge(platform) {
+        if (platform === 'both') {
+            return `<span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: linear-gradient(90deg, #d1fae5 0%, #f3f4f6 100%); color: #374151; font-weight: 600;">📱 Both</span>`;
+        } else if (platform === 'android') {
+            return `<span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #d1fae5; color: #065f46; font-weight: 600;">🤖 Android</span>`;
+        } else if (platform === 'ios') {
+            return `<span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f3f4f6; color: #374151; font-weight: 600;">🍎 iOS</span>`;
+        }
+        return '';
+    }
+    
+    // ========================================
+    // WEEKLY LOG FUNCTIONS
+    // ========================================
+    
+    function navigateWeeklyLog(direction) {
+        weeklyLogWeekIdx = Math.max(0, Math.min(WEEKS.length - 1, weeklyLogWeekIdx + direction));
+        renderWeeklyLog();
+    }
+    
+    function setLogPlatform(platform) {
+        weeklyLogPlatform = platform;
+        
+        // Update button styles
+        const androidBtn = document.getElementById('logPlatformAndroid');
+        const iosBtn = document.getElementById('logPlatformIOS');
+        
+        if (platform === 'android') {
+            androidBtn.style.background = '#d1fae5';
+            androidBtn.style.borderColor = '#3ddc84';
+            androidBtn.style.color = '#065f46';
+            iosBtn.style.background = 'white';
+            iosBtn.style.borderColor = '#e2e8f0';
+            iosBtn.style.color = '#374151';
+        } else {
+            iosBtn.style.background = '#f3f4f6';
+            iosBtn.style.borderColor = '#374151';
+            iosBtn.style.color = '#111827';
+            androidBtn.style.background = 'white';
+            androidBtn.style.borderColor = '#e2e8f0';
+            androidBtn.style.color = '#065f46';
+        }
+        
+        renderWeeklyLog();
+    }
+    
+    function renderWeeklyLog() {
+        const container = document.getElementById('weeklyLogEntries');
+        const labelEl = document.getElementById('weeklyLogLabel');
+        const warningsContainer = document.getElementById('weeklyLogWarnings');
+        const warningsList = document.getElementById('warningsList');
+        
+        const week = WEEKS[weeklyLogWeekIdx];
+        const weekKey = `${week.year}-W${week.week}`;
+        labelEl.textContent = `W${week.week} - ${week.month} (${week.dates})`;
+        
+        // Get all entries for this week (stored in android.weeklyEntries as the main store)
+        const allWeekEntries = data.android.weeklyEntries[weekKey] || [];
+        
+        // Filter by selected platform
+        const entries = allWeekEntries.filter(entry => {
+            if (weeklyLogPlatform === 'android') {
+                return entry.platform === 'android' || entry.platform === 'both';
+            } else {
+                return entry.platform === 'ios' || entry.platform === 'both';
+            }
+        });
+        
+        // Check for warnings (duplicates across all weeks)
+        const warnings = [];
+        const allEntries = getAllEntries(weeklyLogPlatform);
+        
+        entries.forEach(entry => {
+            // Check ADO duplicates
+            if (entry.adoId) {
+                const adoDuplicates = allEntries.filter(e => e.adoId === entry.adoId && e.id !== entry.id);
+                if (adoDuplicates.length > 0) {
+                    warnings.push(`ADO #${entry.adoId} appears ${adoDuplicates.length + 1} times across weeks`);
+                }
+            }
+            
+            // Check name duplicates
+            const nameDuplicates = allEntries.filter(e => 
+                e.testName.toLowerCase() === entry.testName.toLowerCase() && e.id !== entry.id
+            );
+            if (nameDuplicates.length > 0) {
+                warnings.push(`"${entry.testName}" appears ${nameDuplicates.length + 1} times across weeks`);
+            }
+        });
+        
+        // Remove duplicate warnings
+        const uniqueWarnings = [...new Set(warnings)];
+        
+        if (uniqueWarnings.length > 0) {
+            warningsContainer.style.display = 'block';
+            warningsList.innerHTML = uniqueWarnings.map(w => `<li>${w}</li>`).join('');
+        } else {
+            warningsContainer.style.display = 'none';
+        }
+        
+        if (entries.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 40px;">No entries for this week. Click on an "Actual" cell to add test entries.</p>';
+            return;
+        }
+        
+        // Group by engineer
+        const byEngineer = {};
+        entries.forEach(entry => {
+            if (!byEngineer[entry.engineer]) {
+                byEngineer[entry.engineer] = [];
+            }
+            byEngineer[entry.engineer].push(entry);
+        });
+        
+        let html = '';
+        Object.entries(byEngineer).forEach(([engineerId, engineerEntries]) => {
+            const engineer = data.engineers.find(e => e.id === engineerId);
+            const engineerName = engineer ? engineer.name : engineerId;
+            
+            html += `
+                <div style="border-bottom: 2px solid #e2e8f0;">
+                    <div style="background: linear-gradient(135deg, var(--axos-navy) 0%, var(--axos-navy-light) 100%); color: white; padding: 12px 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+                        <span>👤 ${engineerName}</span>
+                        <span style="background: var(--axos-orange); color: var(--axos-navy); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;">${engineerEntries.length} tests</span>
+                    </div>
+                    <div style="padding: 0;">
+                        ${engineerEntries.map(entry => `
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f5f9; background: white;">
+                                <span style="font-size: 20px;">${getVerticalEmoji(entry.vertical)}</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: var(--axos-navy); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        ${entry.testName}
+                                        ${getPlatformBadge(entry.platform)}
+                                    </div>
+                                    <div style="font-size: 12px; color: #64748b; display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap;">
+                                        ${entry.adoId ? `<a href="https://bofaz.visualstudio.com/Automation%20Architecture/_workitems/edit/${entry.adoId}" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 500;">🔗 ADO #${entry.adoId}</a>` : '<span style="color: #94a3b8;">No ADO link</span>'}
+                                        <span>${BACKLOG_BASELINE[entry.vertical]?.name || entry.vertical}</span>
+                                        <span style="padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: ${entry.priority === 'P0' ? '#fee2e2' : entry.priority === 'P1' ? '#fef3c7' : '#dbeafe'}; color: ${entry.priority === 'P0' ? '#dc2626' : entry.priority === 'P1' ? '#92400e' : '#1d4ed8'};">${entry.priority}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function getAllEntries(platform) {
+        // All entries are now stored in android.weeklyEntries as the main store
+        const allEntries = [];
+        
+        Object.values(data.android.weeklyEntries || {}).forEach(entries => {
+            entries.forEach(entry => {
+                // Filter by platform
+                if (platform === 'android' && (entry.platform === 'android' || entry.platform === 'both')) {
+                    allEntries.push(entry);
+                } else if (platform === 'ios' && (entry.platform === 'ios' || entry.platform === 'both')) {
+                    allEntries.push(entry);
+                }
+            });
+        });
+        
+        return allEntries;
+    }
+    
+    // ========================================
+    // BACKLOG BREAKDOWN FUNCTIONS
+    // ========================================
+    
+    function calculateCompletedByVertical() {
+        const completed = {
+            android: {},
+            ios: {}
+        };
+        
+        // Initialize
+        Object.keys(BACKLOG_BASELINE).forEach(vertical => {
+            completed.android[vertical] = { P0: 0, P1: 0, P2: 0, total: 0 };
+            completed.ios[vertical] = { P0: 0, P1: 0, P2: 0, total: 0 };
+        });
+        
+        // All entries are now in android.weeklyEntries, use platform field to count
+        Object.values(data.android.weeklyEntries || {}).forEach(entries => {
+            entries.forEach(entry => {
+                const vertical = entry.vertical;
+                const priority = entry.priority;
+                const platform = entry.platform || 'both';
+                
+                if (!completed.android[vertical]) return;
+                
+                // Count for Android if platform is 'android' or 'both'
+                if (platform === 'android' || platform === 'both') {
+                    completed.android[vertical][priority]++;
+                    completed.android[vertical].total++;
+                }
+                
+                // Count for iOS if platform is 'ios' or 'both'
+                if (platform === 'ios' || platform === 'both') {
+                    completed.ios[vertical][priority]++;
+                    completed.ios[vertical].total++;
+                }
+            });
+        });
+        
+        return completed;
+    }
+    
+    function updateBacklogBreakdown() {
+        const completed = calculateCompletedByVertical();
+        
+        // Update the table cells
+        const rows = document.querySelectorAll('#backlogTable tbody tr');
+        rows.forEach(row => {
+            const verticalKey = row.dataset.vertical;
+            if (!verticalKey || !BACKLOG_BASELINE[verticalKey]) return;
+            
+            const baseline = BACKLOG_BASELINE[verticalKey];
+            const androidCompleted = completed.android[verticalKey] || { P0: 0, P1: 0, P2: 0, total: 0 };
+            const iosCompleted = completed.ios[verticalKey] || { P0: 0, P1: 0, P2: 0, total: 0 };
+            
+            // Update P0, P1, P2, Total cells with completion info
+            const p0Cell = row.querySelector('.p0-cell');
+            const p1Cell = row.querySelector('.p1-cell');
+            const p2Cell = row.querySelector('.p2-cell');
+            const totalCell = row.querySelector('.total-cell');
+            
+            if (p0Cell) {
+                const completedP0 = androidCompleted.P0 + iosCompleted.P0;
+                p0Cell.innerHTML = completedP0 > 0 
+                    ? `${baseline.P0} <span style="color: #10b981; font-size: 11px;">(${completedP0} ✓)</span>`
+                    : baseline.P0;
+            }
+            
+            if (p1Cell) {
+                const completedP1 = androidCompleted.P1 + iosCompleted.P1;
+                p1Cell.innerHTML = completedP1 > 0 
+                    ? `${baseline.P1} <span style="color: #10b981; font-size: 11px;">(${completedP1} ✓)</span>`
+                    : baseline.P1;
+            }
+            
+            if (p2Cell) {
+                const completedP2 = androidCompleted.P2 + iosCompleted.P2;
+                p2Cell.innerHTML = completedP2 > 0 
+                    ? `${baseline.P2} <span style="color: #10b981; font-size: 11px;">(${completedP2} ✓)</span>`
+                    : baseline.P2;
+            }
+            
+            if (totalCell) {
+                const completedTotal = androidCompleted.total + iosCompleted.total;
+                totalCell.innerHTML = completedTotal > 0 
+                    ? `${baseline.total} <span style="color: #10b981; font-size: 11px;">(${completedTotal} ✓)</span>`
+                    : baseline.total;
+            }
+        });
+        
+        // Update totals row
+        const totalsRow = document.querySelector('#backlogTable tfoot tr');
+        if (totalsRow) {
+            let totalP0 = 0, totalP1 = 0, totalP2 = 0, grandTotal = 0;
+            let completedP0 = 0, completedP1 = 0, completedP2 = 0, completedTotal = 0;
+            
+            Object.keys(BACKLOG_BASELINE).forEach(key => {
+                const baseline = BACKLOG_BASELINE[key];
+                totalP0 += baseline.P0;
+                totalP1 += baseline.P1;
+                totalP2 += baseline.P2;
+                grandTotal += baseline.total;
+                
+                completedP0 += (completed.android[key]?.P0 || 0) + (completed.ios[key]?.P0 || 0);
+                completedP1 += (completed.android[key]?.P1 || 0) + (completed.ios[key]?.P1 || 0);
+                completedP2 += (completed.android[key]?.P2 || 0) + (completed.ios[key]?.P2 || 0);
+                completedTotal += (completed.android[key]?.total || 0) + (completed.ios[key]?.total || 0);
+            });
+            
+            const p0Total = totalsRow.querySelector('.p0-total');
+            const p1Total = totalsRow.querySelector('.p1-total');
+            const p2Total = totalsRow.querySelector('.p2-total');
+            const grandTotalCell = totalsRow.querySelector('.grand-total');
+            
+            if (p0Total) p0Total.innerHTML = completedP0 > 0 ? `${totalP0} <span style="color: #FAA74A;">(${completedP0} ✓)</span>` : totalP0;
+            if (p1Total) p1Total.innerHTML = completedP1 > 0 ? `${totalP1} <span style="color: #FAA74A;">(${completedP1} ✓)</span>` : totalP1;
+            if (p2Total) p2Total.innerHTML = completedP2 > 0 ? `${totalP2} <span style="color: #FAA74A;">(${completedP2} ✓)</span>` : totalP2;
+            if (grandTotalCell) grandTotalCell.innerHTML = completedTotal > 0 ? `${grandTotal} <span style="color: #FAA74A;">(${completedTotal} ✓)</span>` : grandTotal;
+        }
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', async function() {
         await loadData();
         renderTable();
         updateSummary();
+        renderWeeklyLog();
+        updateBacklogBreakdown();
     });
 </script>
 
