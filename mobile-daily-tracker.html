@@ -1139,6 +1139,9 @@
                         <option value="all">All Types</option>
                         <option value="new">🆕 New Test</option>
                         <option value="existing">🔧 Maintenance</option>
+                        <option value="status-change">🔄 Status Change</option>
+                        <option value="edit">✏️ Edit</option>
+                        <option value="delete">🗑️ Delete</option>
                     </select>
                 </div>
             </div>
@@ -2289,20 +2292,50 @@
                     <div class="log-day-content">
                         ${entries.map(entry => {
                             const test = data.tests.find(t => t.id === entry.testId);
+                            const testName = test ? test.name : (entry.testName || 'Unknown Test');
+                            const testPlatform = test ? test.platform : (entry.testPlatform || entry.platform || 'both');
+                            const showEngineer = entry.entryType === 'new' || entry.entryType === 'existing';
+                            const showTimestamp = entry.entryType === 'status-change' || entry.entryType === 'edit' || entry.entryType === 'delete';
+                            
                             return `
-                                <div class="daily-entry-card">
+                                <div class="daily-entry-card" style="border-left-color: ${getEntryTypeColor(entry.entryType)};">
                                     <div class="entry-header">
-                                        <span class="entry-person">👤 ${getPersonName(entry.personId)}</span>
-                                        <span class="status-badge status-${entry.entryType === 'new' ? 'in-progress' : 'maintenance'}">
-                                            ${entry.entryType === 'new' ? '🆕 New Test' : '🔧 Maintenance'}
+                                        ${showEngineer ? `<span class="entry-person">👤 ${getPersonName(entry.personId)}</span>` : ''}
+                                        ${showTimestamp && entry.timestamp ? `<span style="font-size: 11px; color: #64748b;">🕐 ${formatTimePST(entry.timestamp)}</span>` : ''}
+                                        ${getEntryTypeBadge(entry.entryType)}
+                                    </div>
+                                    <div class="entry-content" style="margin-bottom: 8px;">
+                                        <strong>Test:</strong> ${testName}
+                                        <span class="platform-badge ${testPlatform}" style="margin-left: 8px;">
+                                            ${getPlatformIcon(testPlatform)} ${testPlatform}
                                         </span>
                                     </div>
-                                    ${test ? `
-                                        <div class="entry-content" style="margin-bottom: 8px;">
-                                            <strong>Test:</strong> ${test.name}
-                                            <span class="platform-badge ${test.platform}" style="margin-left: 8px;">
-                                                ${getPlatformIcon(test.platform)} ${test.platform}
-                                            </span>
+                                    ${entry.entryType === 'status-change' ? `
+                                        <div class="entry-content" style="margin-bottom: 8px; padding: 8px; background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 6px;">
+                                            <strong>🔄 Status Changed:</strong> 
+                                            <span style="text-decoration: line-through; color: #64748b;">${getStatusLabel(entry.oldStatus)}</span>
+                                            → <span style="font-weight: 600;">${getStatusLabel(entry.newStatus)}</span>
+                                            ${entry.platform && entry.platform !== 'both' ? `<span style="margin-left: 8px; font-size: 11px; color: #64748b;">(${getPlatformIcon(entry.platform)} ${entry.platform})</span>` : ''}
+                                        </div>
+                                    ` : ''}
+                                    ${entry.entryType === 'edit' && entry.changes ? `
+                                        <div class="entry-content" style="margin-bottom: 8px; padding: 8px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 6px;">
+                                            <strong>✏️ Changes Made:</strong>
+                                            <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px;">
+                                                ${entry.changes.map(c => `
+                                                    <li style="margin-bottom: 4px;">
+                                                        <strong>${c.field}:</strong> 
+                                                        <span style="color: #64748b; text-decoration: line-through;">${c.from}</span>
+                                                        → <span style="font-weight: 500;">${c.to}</span>
+                                                    </li>
+                                                `).join('')}
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+                                    ${entry.entryType === 'delete' ? `
+                                        <div class="entry-content" style="margin-bottom: 8px; padding: 8px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 6px;">
+                                            <strong>🗑️ Test Deleted</strong>
+                                            ${entry.testVertical ? `<br><span style="font-size: 12px; color: #64748b;">Vertical: ${capitalize(entry.testVertical)} | Status: ${getStatusLabel(entry.testStatus)}</span>` : ''}
                                         </div>
                                     ` : ''}
                                     ${entry.adoTaskLink || (test && test.adoTaskLink) ? `
@@ -2687,6 +2720,14 @@
     function updateTestStatus(testId, newStatus, platform = null) {
         const test = data.tests.find(t => t.id === testId);
         if (test) {
+            // Capture old status for logging
+            let oldStatus;
+            if (test.platform === 'both' && platform) {
+                oldStatus = platform === 'android' ? (test.androidStatus || test.status || 'not-started') : (test.iosStatus || test.status || 'not-started');
+            } else {
+                oldStatus = test.status;
+            }
+            
             if (test.platform === 'both' && platform) {
                 // Initialize platform statuses if not already set (for legacy data)
                 if (!test.androidStatus) {
@@ -2719,15 +2760,54 @@
                 platform: platform || test.platform,
                 updatedBy: document.getElementById('selectedPerson').value
             });
+            
+            // Create daily entry for status change
+            const personId = document.getElementById('selectedPerson').value;
+            const statusChangeEntry = {
+                id: 'entry-' + Date.now(),
+                date: getPSTDateString(),
+                personId,
+                testId: test.id,
+                testName: test.name, // Store name in case test is deleted later
+                entryType: 'status-change',
+                oldStatus,
+                newStatus,
+                platform: platform || test.platform,
+                timestamp: new Date().toISOString()
+            };
+            data.dailyEntries.push(statusChangeEntry);
+            
             showSaveStatus(false);
             renderAll();
         }
     }
     
     function deleteTest(testId) {
+        const test = data.tests.find(t => t.id === testId);
+        if (!test) return;
+        
         if (confirm('Are you sure you want to delete this test?')) {
+            const personId = document.getElementById('selectedPerson').value;
+            
+            // Create daily entry for deletion BEFORE removing the test
+            const deleteEntry = {
+                id: 'entry-' + Date.now(),
+                date: getPSTDateString(),
+                personId,
+                testId: testId,
+                testName: test.name, // Store name since test will be deleted
+                testPlatform: test.platform,
+                testVertical: test.vertical,
+                testStatus: test.status,
+                entryType: 'delete',
+                timestamp: new Date().toISOString()
+            };
+            data.dailyEntries.push(deleteEntry);
+            
+            // Remove the test
             data.tests = data.tests.filter(t => t.id !== testId);
-            data.dailyEntries = data.dailyEntries.filter(e => e.testId !== testId);
+            // Note: We keep the daily entries referencing this test for historical purposes
+            
             showSaveStatus(false);
             renderAll();
         }
@@ -2786,6 +2866,19 @@
         const test = data.tests.find(t => t.id === testId);
         if (!test) return;
         
+        // Capture old values for logging
+        const oldValues = {
+            name: test.name,
+            platform: test.platform,
+            vertical: test.vertical,
+            priority: test.priority,
+            status: test.status,
+            androidStatus: test.androidStatus,
+            iosStatus: test.iosStatus,
+            adoTaskLink: test.adoTaskLink,
+            adoBugLinks: test.adoBugLinks
+        };
+        
         const oldPlatform = test.platform;
         const newPlatform = document.getElementById('editTestPlatform').value;
         
@@ -2815,6 +2908,31 @@
         if (oldPlatform !== 'both' && newPlatform === 'both') {
             if (!test.androidStatus) test.androidStatus = test.status;
             if (!test.iosStatus) test.iosStatus = test.status;
+        }
+        
+        // Build list of changes for the log
+        const changes = [];
+        if (oldValues.name !== test.name) changes.push({ field: 'Name', from: oldValues.name, to: test.name });
+        if (oldValues.platform !== test.platform) changes.push({ field: 'Platform', from: oldValues.platform, to: test.platform });
+        if (oldValues.vertical !== test.vertical) changes.push({ field: 'Vertical', from: oldValues.vertical, to: test.vertical });
+        if (oldValues.priority !== test.priority) changes.push({ field: 'Priority', from: oldValues.priority, to: test.priority });
+        if (oldValues.adoTaskLink !== test.adoTaskLink) changes.push({ field: 'ADO Task Link', from: oldValues.adoTaskLink || '(none)', to: test.adoTaskLink || '(none)' });
+        if (oldValues.adoBugLinks !== test.adoBugLinks) changes.push({ field: 'ADO Bug Links', from: oldValues.adoBugLinks || '(none)', to: test.adoBugLinks || '(none)' });
+        
+        // Create daily entry for edit (only if there are changes)
+        if (changes.length > 0) {
+            const personId = document.getElementById('selectedPerson').value;
+            const editEntry = {
+                id: 'entry-' + Date.now(),
+                date: getPSTDateString(),
+                personId,
+                testId: test.id,
+                testName: test.name,
+                entryType: 'edit',
+                changes,
+                timestamp: new Date().toISOString()
+            };
+            data.dailyEntries.push(editEntry);
         }
         
         hideEditTestModal();
@@ -2874,6 +2992,51 @@
             'other': '📌'
         };
         return emojis[vertical] || '📌';
+    }
+    
+    function getEntryTypeBadge(entryType) {
+        const badges = {
+            'new': '<span class="status-badge status-in-progress">🆕 New Test</span>',
+            'existing': '<span class="status-badge status-maintenance">🔧 Maintenance</span>',
+            'status-change': '<span class="status-badge" style="background: #dbeafe; color: #1d4ed8;">🔄 Status Change</span>',
+            'edit': '<span class="status-badge" style="background: #fef3c7; color: #92400e;">✏️ Edited</span>',
+            'delete': '<span class="status-badge" style="background: #fee2e2; color: #dc2626;">🗑️ Deleted</span>'
+        };
+        return badges[entryType] || '<span class="status-badge status-maintenance">📝 Update</span>';
+    }
+    
+    function getEntryTypeColor(entryType) {
+        const colors = {
+            'new': 'var(--axos-orange)',
+            'existing': '#f59e0b',
+            'status-change': '#3b82f6',
+            'edit': '#f59e0b',
+            'delete': '#ef4444'
+        };
+        return colors[entryType] || 'var(--axos-orange)';
+    }
+    
+    function getStatusLabel(status) {
+        const labels = {
+            'not-started': '⏳ Not Started',
+            'in-progress': '🔄 In Progress',
+            'blocked': '🚫 Blocked',
+            'completed': '✅ Completed',
+            'unable': '❌ Unable to Automate',
+            'maintenance': '🔧 Maintenance'
+        };
+        return labels[status] || status;
+    }
+    
+    function formatTimePST(isoTimestamp) {
+        if (!isoTimestamp) return '';
+        const date = new Date(isoTimestamp);
+        return date.toLocaleTimeString('en-US', {
+            timeZone: 'America/Los_Angeles',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        }) + ' PST';
     }
     
     function updatePersonSelection() {
