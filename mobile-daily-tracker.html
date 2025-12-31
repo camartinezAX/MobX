@@ -398,6 +398,12 @@
             font-weight: 600;
         }
         
+        .test-list .lifetime.frozen {
+            color: #3b82f6;
+            font-style: italic;
+            font-weight: 500;
+        }
+        
         /* Person filter tabs */
         .person-tabs {
             display: flex;
@@ -1334,6 +1340,20 @@
     </div>
 </div>
 
+<!-- Timeline Modal -->
+<div class="modal-overlay" id="timelineModal">
+    <div class="modal" style="width: 500px;">
+        <h3>📜 Test Timeline</h3>
+        <div id="timelineModalTestName" style="font-weight: 600; color: var(--axos-navy); margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px;"></div>
+        <div id="timelineModalContent" style="max-height: 400px; overflow-y: auto;">
+            <!-- Populated by JS -->
+        </div>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="btn-primary" onclick="hideTimelineModal()" style="width: 100%;">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Hidden file input for import -->
 <input type="file" id="fileInput" accept=".json" onchange="handleFileImport(event)">
 
@@ -1469,6 +1489,9 @@
         
         // Load data (async - will fetch from Google Sheets if configured)
         await loadData();
+        
+        // Backfill dateCompleted for already completed tests from daily logs
+        backfillDateCompleted();
         
         // Render with loaded data
         renderAll();
@@ -1941,6 +1964,15 @@
             if (platform === 'both') {
                 testEntry.androidStatus = androidStatus;
                 testEntry.iosStatus = iosStatus;
+                // Set dateCompleted if both platforms start as completed
+                if (androidStatus === 'completed' && iosStatus === 'completed') {
+                    testEntry.dateCompleted = entryDate;
+                }
+            } else {
+                // Set dateCompleted if single platform starts as completed
+                if (status === 'completed') {
+                    testEntry.dateCompleted = entryDate;
+                }
             }
             
             data.tests.push(testEntry);
@@ -2123,8 +2155,10 @@
         }
         
         tbody.innerHTML = filteredTests.map(test => {
-            const lifetime = calculateLifetime(test.dateAdded);
-            const lifetimeClass = lifetime > 7 ? 'old' : '';
+            const lifetime = calculateLifetime(test);
+            const frozen = isLifetimeFrozen(test);
+            const lifetimeClass = lifetime > 7 && !frozen ? 'old' : '';
+            const frozenClass = frozen ? 'frozen' : '';
             
             // Build status column based on platform
             let statusColumn;
@@ -2196,8 +2230,9 @@
                     <td>${getVerticalEmoji(test.vertical)} ${capitalize(test.vertical)}</td>
                     <td>${statusColumn}</td>
                     <td>${formatDate(test.dateAdded)}</td>
-                    <td><span class="lifetime ${lifetimeClass}">${lifetime} days</span></td>
-                    <td>
+                    <td><span class="lifetime ${lifetimeClass} ${frozenClass}">${lifetime} ${lifetime === 1 ? 'day' : 'days'}${frozen ? ' ✓' : ''}</span></td>
+                    <td style="white-space: nowrap;">
+                        <button class="action-btn" onclick="showTestTimelineModal('${test.id}')" style="background: #e0e7ff; color: #3730a3; margin-right: 4px;" title="View Timeline">📜</button>
                         <button class="action-btn edit" onclick="openEditTestModal('${test.id}')" style="background: #3b82f6; margin-right: 4px;">✏️</button>
                         <button class="action-btn delete" onclick="deleteTest('${test.id}')">🗑️</button>
                     </td>
@@ -2309,12 +2344,25 @@
                                         <span class="platform-badge ${testPlatform}" style="margin-left: 8px;">
                                             ${getPlatformIcon(testPlatform)} ${testPlatform}
                                         </span>
+                                        ${entry.testId ? `<button onclick="toggleTestTimeline('${entry.id}')" style="margin-left: 8px; padding: 2px 8px; border: none; border-radius: 4px; background: #e0e7ff; color: #3730a3; cursor: pointer; font-size: 10px; font-weight: 600;">📜 Timeline</button>` : ''}
+                                    </div>
+                                    <div id="timeline-${entry.id}" style="display: none;">
+                                        ${entry.testId ? renderTestTimeline(entry.testId) : ''}
                                     </div>
                                     ${entry.entryType === 'status-change' ? `
-                                        <div class="entry-content" style="margin-bottom: 8px; padding: 8px; background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 6px;">
-                                            <strong>🔄 Status Changed:</strong> 
-                                            <span style="text-decoration: line-through; color: #64748b;">${getStatusLabel(entry.oldStatus)}</span>
-                                            → <span style="font-weight: 600;">${getStatusLabel(entry.newStatus)}</span>
+                                        <div class="entry-content" style="margin-bottom: 8px; padding: 8px; background: ${entry.isReopened || entry.oldStatus === 'completed' ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' : entry.isCompleted || entry.newStatus === 'completed' ? 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' : 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)'}; border-radius: 6px;">
+                                            ${entry.isReopened || entry.oldStatus === 'completed' ? `
+                                                <strong>🔓 Reopened:</strong> 
+                                                <span style="text-decoration: line-through; color: #64748b;">${getStatusLabel(entry.oldStatus)}</span>
+                                                → <span style="font-weight: 600; color: #b45309;">${getStatusLabel(entry.newStatus)}</span>
+                                            ` : entry.isCompleted || entry.newStatus === 'completed' ? `
+                                                <strong>✅ Completed!</strong> 
+                                                <span style="color: #64748b;">(was: ${getStatusLabel(entry.oldStatus)})</span>
+                                            ` : `
+                                                <strong>🔄 Status Changed:</strong> 
+                                                <span style="text-decoration: line-through; color: #64748b;">${getStatusLabel(entry.oldStatus)}</span>
+                                                → <span style="font-weight: 600;">${getStatusLabel(entry.newStatus)}</span>
+                                            `}
                                             ${entry.platform && entry.platform !== 'both' ? `<span style="margin-left: 8px; font-size: 11px; color: #64748b;">(${getPlatformIcon(entry.platform)} ${entry.platform})</span>` : ''}
                                         </div>
                                     ` : ''}
@@ -2745,12 +2793,30 @@
                 }
                 // Keep the general status in sync (use the "worst" status for overall display)
                 test.status = getOverallStatus(test.androidStatus, test.iosStatus);
+                
+                // If BOTH platforms are now completed, store dateCompleted
+                if (test.androidStatus === 'completed' && test.iosStatus === 'completed' && !test.dateCompleted) {
+                    test.dateCompleted = getPSTDateString();
+                }
+                // If either platform is no longer completed, clear dateCompleted
+                if (test.androidStatus !== 'completed' || test.iosStatus !== 'completed') {
+                    delete test.dateCompleted;
+                }
             } else {
                 test.status = newStatus;
                 // If platform is "both" but no specific platform was passed, update both
                 if (test.platform === 'both') {
                     test.androidStatus = newStatus;
                     test.iosStatus = newStatus;
+                }
+                
+                // Store dateCompleted when test is marked as completed
+                if (newStatus === 'completed' && !test.dateCompleted) {
+                    test.dateCompleted = getPSTDateString();
+                }
+                // Clear dateCompleted if status is changed from completed to something else
+                if (newStatus !== 'completed' && test.dateCompleted) {
+                    delete test.dateCompleted;
                 }
             }
             test.history = test.history || [];
@@ -2763,6 +2829,11 @@
             
             // Create daily entry for status change
             const personId = document.getElementById('selectedPerson').value;
+            
+            // Determine if this is a "reopened" event (from completed to something else)
+            const isReopened = oldStatus === 'completed' && newStatus !== 'completed';
+            const isCompleted = newStatus === 'completed' && oldStatus !== 'completed';
+            
             const statusChangeEntry = {
                 id: 'entry-' + Date.now(),
                 date: getPSTDateString(),
@@ -2773,6 +2844,8 @@
                 oldStatus,
                 newStatus,
                 platform: platform || test.platform,
+                isReopened, // Track if this was a reopening from completed
+                isCompleted, // Track if this was a completion
                 timestamp: new Date().toISOString()
             };
             data.dailyEntries.push(statusChangeEntry);
@@ -2896,9 +2969,25 @@
             test.androidStatus = document.getElementById('editAndroidStatus').value;
             test.iosStatus = document.getElementById('editIosStatus').value;
             test.status = getOverallStatus(test.androidStatus, test.iosStatus);
+            
+            // Handle dateCompleted for both platforms
+            if (test.androidStatus === 'completed' && test.iosStatus === 'completed' && !test.dateCompleted) {
+                test.dateCompleted = getPSTDateString();
+            } else if (test.androidStatus !== 'completed' || test.iosStatus !== 'completed') {
+                delete test.dateCompleted;
+            }
         } else {
             // Save single status
-            test.status = document.getElementById('editTestStatus').value;
+            const newStatus = document.getElementById('editTestStatus').value;
+            test.status = newStatus;
+            
+            // Handle dateCompleted for single platform
+            if (newStatus === 'completed' && !test.dateCompleted) {
+                test.dateCompleted = getPSTDateString();
+            } else if (newStatus !== 'completed') {
+                delete test.dateCompleted;
+            }
+            
             // Clear platform-specific statuses
             delete test.androidStatus;
             delete test.iosStatus;
@@ -2948,11 +3037,255 @@
         return person ? person.name : 'Unknown';
     }
     
-    function calculateLifetime(dateAdded) {
-        const added = new Date(dateAdded);
-        const today = new Date();
-        const diffTime = Math.abs(today - added);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    function calculateLifetime(test) {
+        const added = new Date(test.dateAdded + 'T00:00:00');
+        let endDate;
+        
+        // If test is completed and has a dateCompleted, use that as the end date (frozen)
+        if (test.status === 'completed' && test.dateCompleted) {
+            endDate = new Date(test.dateCompleted + 'T23:59:59');
+        } else if (test.platform === 'both') {
+            // For "both" platform tests, check if BOTH platforms are completed
+            const androidCompleted = test.androidStatus === 'completed';
+            const iosCompleted = test.iosStatus === 'completed';
+            if (androidCompleted && iosCompleted && test.dateCompleted) {
+                endDate = new Date(test.dateCompleted + 'T23:59:59');
+            } else {
+                endDate = new Date();
+            }
+        } else {
+            endDate = new Date();
+        }
+        
+        const diffTime = Math.abs(endDate - added);
+        const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        // Minimum 1 day (same-day completion counts as 1 day)
+        return Math.max(1, days);
+    }
+    
+    // Check if a test's lifetime is frozen (completed)
+    function isLifetimeFrozen(test) {
+        if (test.platform === 'both') {
+            return test.androidStatus === 'completed' && test.iosStatus === 'completed' && test.dateCompleted;
+        }
+        return test.status === 'completed' && test.dateCompleted;
+    }
+    
+    // Build timeline for a test from daily entries
+    function buildTestTimeline(testId) {
+        const test = data.tests.find(t => t.id === testId);
+        if (!test) return [];
+        
+        const timeline = [];
+        
+        // 1. Created
+        const createdEntry = data.dailyEntries.find(e => e.testId === testId && e.entryType === 'new');
+        timeline.push({
+            type: 'created',
+            date: test.dateAdded,
+            label: '📅 Created',
+            personId: test.ownerId
+        });
+        
+        // 2. Get all status changes sorted by date
+        const statusChanges = data.dailyEntries
+            .filter(e => e.testId === testId && e.entryType === 'status-change')
+            .sort((a, b) => {
+                // Sort by date, then by timestamp for same-day entries
+                const dateCompare = new Date(a.date) - new Date(b.date);
+                if (dateCompare !== 0) return dateCompare;
+                return new Date(a.timestamp) - new Date(b.timestamp);
+            });
+        
+        // 3. Process status changes to build timeline
+        statusChanges.forEach(entry => {
+            if (entry.isCompleted || entry.newStatus === 'completed') {
+                timeline.push({
+                    type: 'completed',
+                    date: entry.date,
+                    label: '✅ Completed',
+                    platform: entry.platform,
+                    personId: entry.personId
+                });
+            } else if (entry.isReopened || entry.oldStatus === 'completed') {
+                timeline.push({
+                    type: 'reopened',
+                    date: entry.date,
+                    label: `🔄 Reopened to '${getStatusLabel(entry.newStatus)}'`,
+                    newStatus: entry.newStatus,
+                    platform: entry.platform,
+                    personId: entry.personId
+                });
+            }
+        });
+        
+        return timeline;
+    }
+    
+    // Render timeline HTML
+    function renderTestTimeline(testId) {
+        const timeline = buildTestTimeline(testId);
+        if (timeline.length <= 1) return '<div style="padding: 8px; color: #64748b; font-size: 11px;">No status changes recorded yet.</div>';
+        
+        return `
+            <div style="margin-top: 8px; padding: 8px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 6px; font-size: 11px;">
+                <strong style="color: var(--axos-navy);">📜 Test Timeline:</strong>
+                <div style="margin-top: 6px; padding-left: 12px; border-left: 2px solid var(--axos-orange);">
+                    ${timeline.map(t => `
+                        <div style="margin-bottom: 4px; color: #475569;">
+                            ${t.label} ${t.platform && t.platform !== 'both' ? `<span style="font-size: 10px;">(${getPlatformIcon(t.platform)} ${t.platform})</span>` : ''}
+                            <span style="color: #94a3b8;">— ${formatDate(t.date)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Toggle timeline visibility
+    function toggleTestTimeline(entryId) {
+        const timelineEl = document.getElementById('timeline-' + entryId);
+        if (timelineEl) {
+            timelineEl.style.display = timelineEl.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+    
+    // Show timeline modal for a test
+    function showTestTimelineModal(testId) {
+        const test = data.tests.find(t => t.id === testId);
+        if (!test) return;
+        
+        const timeline = buildTestTimeline(testId);
+        
+        document.getElementById('timelineModalTestName').innerHTML = `
+            <span class="platform-badge ${test.platform}" style="margin-right: 8px;">
+                ${getPlatformIcon(test.platform)} ${test.platform.toUpperCase()}
+            </span>
+            ${test.name}
+        `;
+        
+        if (timeline.length <= 1) {
+            document.getElementById('timelineModalContent').innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #64748b;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                    <p>No status changes recorded yet.</p>
+                    <p style="font-size: 12px;">Status changes will appear here as they happen.</p>
+                </div>
+            `;
+        } else {
+            document.getElementById('timelineModalContent').innerHTML = `
+                <div style="padding: 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 8px;">
+                    <div style="padding-left: 16px; border-left: 3px solid var(--axos-orange);">
+                        ${timeline.map((t, index) => `
+                            <div style="margin-bottom: 16px; position: relative;">
+                                <div style="
+                                    position: absolute;
+                                    left: -24px;
+                                    top: 0;
+                                    width: 12px;
+                                    height: 12px;
+                                    border-radius: 50%;
+                                    background: ${t.type === 'created' ? 'var(--axos-orange)' : t.type === 'completed' ? '#10b981' : '#f59e0b'};
+                                    border: 2px solid white;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                "></div>
+                                <div style="font-weight: 600; color: var(--axos-navy); font-size: 13px;">
+                                    ${t.label}
+                                    ${t.platform && t.platform !== 'both' ? `<span style="font-size: 11px; color: #64748b; margin-left: 4px;">(${getPlatformIcon(t.platform)} ${t.platform})</span>` : ''}
+                                </div>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                                    📅 ${formatDate(t.date)}
+                                    ${t.personId ? ` • 👤 ${getPersonName(t.personId)}` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <!-- Summary Stats -->
+                <div style="margin-top: 16px; padding: 12px; background: #dbeafe; border-radius: 8px; font-size: 12px;">
+                    <strong>📊 Summary:</strong>
+                    <div style="display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap;">
+                        <span>Total Events: <strong>${timeline.length}</strong></span>
+                        <span>Completions: <strong>${timeline.filter(t => t.type === 'completed').length}</strong></span>
+                        <span>Reopens: <strong>${timeline.filter(t => t.type === 'reopened').length}</strong></span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        document.getElementById('timelineModal').classList.add('show');
+    }
+    
+    // Hide timeline modal
+    function hideTimelineModal() {
+        document.getElementById('timelineModal').classList.remove('show');
+    }
+    
+    // Backfill dateCompleted from daily logs for already completed tests
+    function backfillDateCompleted() {
+        let updated = false;
+        
+        data.tests.forEach(test => {
+            // Skip if already has dateCompleted
+            if (test.dateCompleted) return;
+            
+            // Check if test is currently completed
+            let isCompleted = false;
+            if (test.platform === 'both') {
+                isCompleted = test.androidStatus === 'completed' && test.iosStatus === 'completed';
+            } else {
+                isCompleted = test.status === 'completed';
+            }
+            
+            if (!isCompleted) return;
+            
+            // Find the most recent status-change entry that set this test to completed
+            const completionEntries = data.dailyEntries
+                .filter(e => e.testId === test.id && e.entryType === 'status-change' && e.newStatus === 'completed')
+                .sort((a, b) => new Date(b.date) - new Date(a.date)); // Most recent first
+            
+            if (completionEntries.length > 0) {
+                // Use the most recent completion date
+                test.dateCompleted = completionEntries[0].date;
+                updated = true;
+                console.log(`📅 Backfilled dateCompleted for "${test.name}": ${test.dateCompleted}`);
+            } else {
+                // If no status-change entry found, check if test was added as completed
+                // (look at original entry or test history)
+                if (test.history && test.history.length > 0) {
+                    const completedHistoryEntry = test.history
+                        .filter(h => h.status === 'completed')
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                    
+                    if (completedHistoryEntry) {
+                        test.dateCompleted = completedHistoryEntry.date;
+                        updated = true;
+                        console.log(`📅 Backfilled dateCompleted from history for "${test.name}": ${test.dateCompleted}`);
+                    }
+                }
+                
+                // Last resort: check daily entries for "new" type that may have started as completed
+                if (!test.dateCompleted) {
+                    const newEntry = data.dailyEntries.find(e => e.testId === test.id && e.entryType === 'new');
+                    if (newEntry) {
+                        // If the test was added and is currently completed but no status change,
+                        // it might have been added as completed - use today's date as fallback
+                        test.dateCompleted = getPSTDateString();
+                        updated = true;
+                        console.log(`📅 Backfilled dateCompleted (fallback today) for "${test.name}": ${test.dateCompleted}`);
+                    }
+                }
+            }
+        });
+        
+        if (updated) {
+            console.log('✅ Backfill complete - saving data...');
+            // Save the updated data
+            localStorage.setItem('mobileDailyTracker', JSON.stringify(data));
+        }
+        
+        return updated;
     }
     
     function formatDate(dateStr) {
