@@ -1062,9 +1062,14 @@
         </div>
         
         <!-- Warnings Section -->
-        <div id="weeklyLogWarnings" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px;">
-            <strong style="color: #92400e;">⚠️ Warnings:</strong>
-            <ul id="warningsList" style="margin: 8px 0 0 16px; color: #92400e; font-size: 13px;"></ul>
+        <div id="weeklyLogWarnings" style="display: none; margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <strong style="color: #92400e; font-size: 14px;">⚠️ Duplicate Entries Found</strong>
+                <button onclick="showDuplicateDetailsModal()" style="padding: 6px 14px; background: #dc2626; border: none; border-radius: 6px; color: white; font-weight: 600; font-size: 12px; cursor: pointer;">
+                    🔍 View Details & Remove
+                </button>
+            </div>
+            <div id="warningsList" style="color: #92400e; font-size: 13px;"></div>
         </div>
         
         <!-- Log Entries -->
@@ -1108,10 +1113,51 @@
                 </div>
             </div>
             
-            <!-- Add Test Form -->
-            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <!-- Entry Method Toggle -->
+            <div style="display: flex; gap: 0; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;">
+                <button id="tabImport" onclick="setEntryMethod('import')" style="flex: 1; padding: 14px 20px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    📥 Import from Daily Tracker
+                </button>
+                <button id="tabManual" onclick="setEntryMethod('manual')" style="flex: 1; padding: 14px 20px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; background: #f8fafc; color: #64748b;">
+                    ✏️ Manual Entry
+                </button>
+            </div>
+            
+            <!-- Import Section (Default/Primary) -->
+            <div id="importSection" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #10b981;">
                 <h4 style="margin: 0 0 16px 0; color: var(--axos-navy); display: flex; align-items: center; gap: 8px;">
-                    ➕ Add New Test
+                    📥 Import from Daily Tracker
+                    <span style="font-size: 11px; font-weight: 500; color: #065f46; background: rgba(255,255,255,0.5); padding: 4px 10px; border-radius: 20px;">Recommended</span>
+                </h4>
+                <p style="margin: 0 0 16px 0; font-size: 13px; color: #065f46;">
+                    Export completed tests from <strong>Daily Tracker</strong> and paste the JSON data below to automatically import them.
+                </p>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 12px; font-weight: 600; color: var(--axos-navy); margin-bottom: 6px;">
+                        📋 Paste exported data from Daily Tracker
+                    </label>
+                    <textarea id="dailyTrackerImportData" placeholder='Paste the JSON exported from Daily Tracker here...' style="width: 100%; height: 120px; padding: 10px; border: 2px solid #a7f3d0; border-radius: 8px; font-family: monospace; font-size: 11px; resize: vertical; box-sizing: border-box; background: white;"></textarea>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button onclick="importFromDailyTracker()" style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-size: 14px;">
+                        ✅ Import Tests
+                    </button>
+                </div>
+                <div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.6); border-radius: 8px;">
+                    <p style="margin: 0; font-size: 12px; color: #065f46;">
+                        <strong>💡 How to get the data:</strong><br>
+                        1. Open Daily Tracker<br>
+                        2. Click <strong>"✅ Completed This Week"</strong> filter in Test Inventory<br>
+                        3. Click <strong>"📤 Export for Tracker"</strong> button<br>
+                        4. Copy the data and paste it above
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Manual Entry Section (Hidden by default) -->
+            <div id="manualSection" style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: none;">
+                <h4 style="margin: 0 0 16px 0; color: var(--axos-navy); display: flex; align-items: center; gap: 8px;">
+                    ✏️ Add New Test Manually
                 </h4>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 180px;">
@@ -1167,38 +1213,15 @@
                     </div>
                 </div>
                 <!-- Add New Engineer -->
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
                     <button onclick="showAddEngineerForm()" id="addEngineerBtn" style="padding: 6px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; color: #64748b; font-size: 12px; cursor: pointer;">
                         👤 Add New Engineer
                     </button>
-                    <button onclick="showImportFromDailyTracker()" id="importFromDailyBtn" style="padding: 6px 12px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 1px solid #10b981; border-radius: 6px; color: #065f46; font-size: 12px; cursor: pointer; font-weight: 600;">
-                        📥 Import from Daily Tracker
-                    </button>
-                    <div id="addEngineerForm" style="display: none; margin-top: 8px; width: 100%;">
+                    <div id="addEngineerForm" style="display: none; margin-top: 8px;">
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="newEngineerName" placeholder="Engineer name" style="flex: 1; padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px;">
                             <button onclick="addNewEngineer()" style="padding: 8px 16px; background: #10b981; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;">Add</button>
                             <button onclick="hideAddEngineerForm()" style="padding: 8px 12px; background: #fee2e2; border: none; border-radius: 6px; color: #dc2626; cursor: pointer;">✕</button>
-                        </div>
-                    </div>
-                    <!-- Import from Daily Tracker Form -->
-                    <div id="importFromDailyForm" style="display: none; margin-top: 8px; width: 100%;">
-                        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 16px; border-radius: 8px; border: 2px solid #10b981;">
-                            <div style="margin-bottom: 12px;">
-                                <label style="display: block; font-size: 12px; font-weight: 600; color: var(--axos-navy); margin-bottom: 6px;">
-                                    📋 Paste exported data from Daily Tracker
-                                </label>
-                                <textarea id="dailyTrackerImportData" placeholder='Paste the JSON exported from Daily Tracker here...' style="width: 100%; height: 120px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 11px; resize: vertical; box-sizing: border-box;"></textarea>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="importFromDailyTracker()" style="padding: 8px 16px; background: #10b981; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;">
-                                    ✅ Import Tests
-                                </button>
-                                <button onclick="hideImportFromDailyTracker()" style="padding: 8px 12px; background: #fee2e2; border: none; border-radius: 6px; color: #dc2626; cursor: pointer;">✕ Cancel</button>
-                            </div>
-                            <p style="margin: 8px 0 0 0; font-size: 11px; color: #64748b;">
-                                💡 Use "✅ Completed This Week" filter in Daily Tracker, then click "📤 Export for Tracker"
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -1942,7 +1965,7 @@
         if (remaining <= 0) {
             // Already completed
             const lastWeek = actuals[actuals.length - 1].week;
-            return { weekIdx: actuals[actuals.length - 1].idx, weekLabel: `W${lastWeek.week} ${lastWeek.month}`, avgPerWeek };
+            return { weekIdx: actuals[actuals.length - 1].idx, weekLabel: `(${lastWeek.dates}) ${lastWeek.month} ${lastWeek.year}`, avgPerWeek };
         }
         
         // Calculate weeks needed to finish
@@ -1951,15 +1974,59 @@
         const projectedFinishIdx = lastActualIdx + weeksNeeded;
         
         if (projectedFinishIdx >= WEEKS.length) {
-            return { weekIdx: WEEKS.length - 1, weekLabel: `After W${WEEKS[WEEKS.length-1].week}`, avgPerWeek };
+            // Projection extends beyond our defined weeks - calculate actual date
+            const lastWeek = WEEKS[WEEKS.length - 1];
+            const weeksAfterLast = projectedFinishIdx - (WEEKS.length - 1);
+            
+            // Calculate the projected date by adding weeks to the last defined week
+            // Parse the last week's end date to get a starting point
+            const lastWeekEndDate = parseWeekEndDate(lastWeek);
+            const projectedDate = new Date(lastWeekEndDate);
+            projectedDate.setDate(projectedDate.getDate() + (weeksAfterLast * 7));
+            
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const projectedMonth = monthNames[projectedDate.getMonth()];
+            const projectedYear = projectedDate.getFullYear();
+            
+            // Calculate week range for the projected date
+            const dayOfWeek = projectedDate.getDay();
+            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            const monday = new Date(projectedDate);
+            monday.setDate(projectedDate.getDate() + mondayOffset);
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+            
+            const dateRange = `${monday.getDate()}-${friday.getDate()}`;
+            
+            return { 
+                weekIdx: projectedFinishIdx, 
+                weekLabel: `(${dateRange}) ${projectedMonth} ${projectedYear}`,
+                avgPerWeek,
+                beyondTimeline: true
+            };
         }
         
         const finishWeek = WEEKS[projectedFinishIdx];
         return { 
             weekIdx: projectedFinishIdx, 
-            weekLabel: `W${finishWeek.week} ${finishWeek.month.split(' ')[0]}`,
+            weekLabel: `(${finishWeek.dates}) ${finishWeek.month.split(' ')[0]} ${finishWeek.year}`,
             avgPerWeek 
         };
+    }
+    
+    // Helper function to parse the end date of a week from WEEKS array
+    function parseWeekEndDate(weekObj) {
+        // weekObj.dates is like "21-25" and weekObj.month is like "Dec 2026"
+        const dates = weekObj.dates.split('-');
+        const endDay = parseInt(dates[1] || dates[0]);
+        const monthParts = weekObj.month.split(' ');
+        const monthName = monthParts[0];
+        const year = weekObj.year;
+        
+        const monthMap = { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 
+                          'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 };
+        
+        return new Date(year, monthMap[monthName], endDay);
     }
 
     // Render the table
@@ -2175,13 +2242,50 @@
             if (cumulativeTarget >= totalScripts) {
                 return {
                     weekIdx: i,
-                    weekLabel: `W${WEEKS[i].week} ${WEEKS[i].month.split(' ')[0]} ${WEEKS[i].year}`,
+                    weekLabel: `(${WEEKS[i].dates}) ${WEEKS[i].month.split(' ')[0]} ${WEEKS[i].year}`,
                     week: WEEKS[i]
                 };
             }
         }
         
-        return { weekIdx: WEEKS.length - 1, weekLabel: `After W${WEEKS[WEEKS.length-1].week}`, week: WEEKS[WEEKS.length - 1] };
+        // Target extends beyond defined weeks - calculate actual date
+        const lastWeek = WEEKS[WEEKS.length - 1];
+        const remainingAfterLastWeek = totalScripts - cumulativeTarget;
+        const avgTargetPerWeek = CONFIG.defaultWeeklyTarget || 5;
+        const weeksAfterLast = Math.ceil(remainingAfterLastWeek / avgTargetPerWeek);
+        
+        if (weeksAfterLast > 0) {
+            const lastWeekEndDate = parseWeekEndDate(lastWeek);
+            const projectedDate = new Date(lastWeekEndDate);
+            projectedDate.setDate(projectedDate.getDate() + (weeksAfterLast * 7));
+            
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const projectedMonth = monthNames[projectedDate.getMonth()];
+            const projectedYear = projectedDate.getFullYear();
+            
+            // Calculate week range for the projected date
+            const dayOfWeek = projectedDate.getDay();
+            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            const monday = new Date(projectedDate);
+            monday.setDate(projectedDate.getDate() + mondayOffset);
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+            
+            const dateRange = `${monday.getDate()}-${friday.getDate()}`;
+            
+            return { 
+                weekIdx: WEEKS.length - 1 + weeksAfterLast, 
+                weekLabel: `(${dateRange}) ${projectedMonth} ${projectedYear}`,
+                week: lastWeek,
+                beyondTimeline: true
+            };
+        }
+        
+        return { 
+            weekIdx: WEEKS.length - 1, 
+            weekLabel: `(${lastWeek.dates}) ${lastWeek.month.split(' ')[0]} ${lastWeek.year}`, 
+            week: lastWeek 
+        };
     }
 
     function updateSummary() {
@@ -2365,9 +2469,15 @@
         tempTestEntries = [];
         currentModalWeekKey = null;
         
-        // Clear form
+        // Clear form fields
         document.getElementById('testName').value = '';
         document.getElementById('testAdoId').value = '';
+        
+        // Clear import textarea
+        document.getElementById('dailyTrackerImportData').value = '';
+        
+        // Reset to import view (default)
+        setEntryMethod('import');
     }
     
     function populateEngineerDropdown() {
@@ -2389,17 +2499,28 @@
         document.getElementById('newEngineerName').value = '';
     }
     
-    // Show import from Daily Tracker form
-    function showImportFromDailyTracker() {
-        document.getElementById('importFromDailyBtn').style.display = 'none';
-        document.getElementById('importFromDailyForm').style.display = 'block';
-    }
-    
-    // Hide import from Daily Tracker form
-    function hideImportFromDailyTracker() {
-        document.getElementById('importFromDailyBtn').style.display = 'inline-block';
-        document.getElementById('importFromDailyForm').style.display = 'none';
-        document.getElementById('dailyTrackerImportData').value = '';
+    // Toggle between Import and Manual entry methods
+    function setEntryMethod(method) {
+        const tabImport = document.getElementById('tabImport');
+        const tabManual = document.getElementById('tabManual');
+        const importSection = document.getElementById('importSection');
+        const manualSection = document.getElementById('manualSection');
+        
+        if (method === 'import') {
+            tabImport.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            tabImport.style.color = 'white';
+            tabManual.style.background = '#f8fafc';
+            tabManual.style.color = '#64748b';
+            importSection.style.display = 'block';
+            manualSection.style.display = 'none';
+        } else {
+            tabManual.style.background = 'var(--gradient-orange)';
+            tabManual.style.color = 'var(--axos-navy)';
+            tabImport.style.background = '#f8fafc';
+            tabImport.style.color = '#64748b';
+            importSection.style.display = 'none';
+            manualSection.style.display = 'block';
+        }
     }
     
     // Import tests from Daily Tracker export
@@ -2500,6 +2621,29 @@
         populateEngineerDropdown();
         hideImportFromDailyTracker();
         
+        // AUTO-SAVE the imported entries to data store immediately
+        // This prevents data loss if user closes modal without clicking Save
+        const androidEntries = tempTestEntries.filter(e => e.platform === 'android' || e.platform === 'both');
+        const iosEntries = tempTestEntries.filter(e => e.platform === 'ios' || e.platform === 'both');
+        
+        data.android.weeklyEntries[currentModalWeekKey] = tempTestEntries;
+        data.ios.weeklyEntries[currentModalWeekKey] = tempTestEntries;
+        
+        data.android.weeklyActuals[currentModalWeekKey] = androidEntries.length > 0 ? androidEntries.length : null;
+        data.ios.weeklyActuals[currentModalWeekKey] = iosEntries.length > 0 ? iosEntries.length : null;
+        
+        // Persist to localStorage immediately
+        localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
+        
+        // Update the main table to show the new counts
+        renderTable();
+        updateSummary();
+        renderWeeklyLog();
+        updateBacklogBreakdown();
+        
+        // Mark as needing cloud sync
+        showSaveStatus(false);
+        
         // Show result
         let message = `✅ Imported ${importedCount} test(s)`;
         if (skippedCount > 0) {
@@ -2509,6 +2653,7 @@
             const rangeType = importData.dateRange.filterByCompletedDate ? 'Completed' : 'Added';
             message += `\n📅 ${rangeType}: ${importData.dateRange.start || 'All time'} → ${importData.dateRange.end || 'Now'}`;
         }
+        message += `\n\n💾 Data saved locally! Click "Save to Cloud" to sync.`;
         alert(message);
     }
     
@@ -2721,6 +2866,9 @@
         data.android.weeklyActuals[currentModalWeekKey] = androidEntries.length > 0 ? androidEntries.length : null;
         data.ios.weeklyActuals[currentModalWeekKey] = iosEntries.length > 0 ? iosEntries.length : null;
         
+        // Persist to localStorage immediately
+        localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
+        
         showSaveStatus(false);
         closeTestEntryModal();
         renderTable();
@@ -2738,6 +2886,7 @@
         if (bothCount > 0) {
             message += `\n(${bothCount} tests marked for both platforms)`;
         }
+        message += `\n\n💾 Data saved locally! Click "Save to Cloud" to sync.`;
         
         alert(message);
     }
@@ -2826,33 +2975,15 @@
         });
         
         // Check for warnings (duplicates across all weeks)
-        const warnings = [];
         const allEntries = getAllEntries(weeklyLogPlatform);
+        const duplicateGroups = findDuplicateGroups(allEntries);
         
-        entries.forEach(entry => {
-            // Check ADO duplicates
-            if (entry.adoId) {
-                const adoDuplicates = allEntries.filter(e => e.adoId === entry.adoId && e.id !== entry.id);
-                if (adoDuplicates.length > 0) {
-                    warnings.push(`ADO #${entry.adoId} appears ${adoDuplicates.length + 1} times across weeks`);
-                }
-            }
-            
-            // Check name duplicates
-            const nameDuplicates = allEntries.filter(e => 
-                e.testName.toLowerCase() === entry.testName.toLowerCase() && e.id !== entry.id
-            );
-            if (nameDuplicates.length > 0) {
-                warnings.push(`"${entry.testName}" appears ${nameDuplicates.length + 1} times across weeks`);
-            }
-        });
+        // Store for modal use
+        window.currentDuplicateGroups = duplicateGroups;
         
-        // Remove duplicate warnings
-        const uniqueWarnings = [...new Set(warnings)];
-        
-        if (uniqueWarnings.length > 0) {
+        if (duplicateGroups.length > 0) {
             warningsContainer.style.display = 'block';
-            warningsList.innerHTML = uniqueWarnings.map(w => `<li>${w}</li>`).join('');
+            warningsList.innerHTML = `<p style="margin: 0;">Found <strong>${duplicateGroups.length}</strong> duplicate group(s). Click "View Details & Remove" to see where each duplicate appears and remove them.</p>`;
         } else {
             warningsContainer.style.display = 'none';
         }
@@ -2923,6 +3054,449 @@
         });
         
         return allEntries;
+    }
+    
+    // Get all entries with their week information
+    function getAllEntriesWithWeek() {
+        const entries = [];
+        
+        Object.entries(data.android.weeklyEntries || {}).forEach(([weekKey, weekEntries]) => {
+            weekEntries.forEach(entry => {
+                entries.push({
+                    ...entry,
+                    weekKey,
+                    weekInfo: getWeekInfoFromKey(weekKey)
+                });
+            });
+        });
+        
+        return entries;
+    }
+    
+    // Get week info from week key (e.g., "2026-W1" -> {week: 1, month: "Jan 2026", dates: "29-2"})
+    function getWeekInfoFromKey(weekKey) {
+        const week = WEEKS.find(w => `${w.year}-W${w.week}` === weekKey);
+        if (week) {
+            return { week: week.week, month: week.month, dates: week.dates, year: week.year };
+        }
+        // Fallback parsing
+        const match = weekKey.match(/(\d{4})-W(\d+)/);
+        if (match) {
+            return { week: parseInt(match[2]), year: parseInt(match[1]), month: 'Unknown', dates: '' };
+        }
+        return { week: 0, month: 'Unknown', dates: '', year: 0 };
+    }
+    
+    // Find duplicate groups across all weeks
+    function findDuplicateGroups(allEntries) {
+        const duplicateGroups = [];
+        const processedAdoIds = new Set();
+        const processedTestNames = new Set();
+        
+        // Get all entries with week information
+        const entriesWithWeek = getAllEntriesWithWeek();
+        
+        // Group by ADO ID
+        entriesWithWeek.forEach(entry => {
+            if (entry.adoId && !processedAdoIds.has(entry.adoId)) {
+                const matches = entriesWithWeek.filter(e => e.adoId === entry.adoId);
+                if (matches.length > 1) {
+                    // Sort by week to determine original
+                    matches.sort((a, b) => {
+                        const aKey = `${a.weekInfo.year}-${String(a.weekInfo.week).padStart(2, '0')}`;
+                        const bKey = `${b.weekInfo.year}-${String(b.weekInfo.week).padStart(2, '0')}`;
+                        return aKey.localeCompare(bKey);
+                    });
+                    
+                    duplicateGroups.push({
+                        type: 'ado',
+                        identifier: `ADO #${entry.adoId}`,
+                        testName: matches[0].testName,
+                        entries: matches
+                    });
+                    processedAdoIds.add(entry.adoId);
+                }
+            }
+        });
+        
+        // Group by test name (only if no ADO ID match already found)
+        entriesWithWeek.forEach(entry => {
+            const lowerName = entry.testName.toLowerCase();
+            if (!processedTestNames.has(lowerName)) {
+                const matches = entriesWithWeek.filter(e => 
+                    e.testName.toLowerCase() === lowerName
+                );
+                
+                // Only add if not already covered by ADO group and has duplicates
+                if (matches.length > 1) {
+                    const alreadyInAdoGroup = duplicateGroups.some(g => 
+                        g.type === 'ado' && g.entries.some(e => e.testName.toLowerCase() === lowerName)
+                    );
+                    
+                    if (!alreadyInAdoGroup) {
+                        matches.sort((a, b) => {
+                            const aKey = `${a.weekInfo.year}-${String(a.weekInfo.week).padStart(2, '0')}`;
+                            const bKey = `${b.weekInfo.year}-${String(b.weekInfo.week).padStart(2, '0')}`;
+                            return aKey.localeCompare(bKey);
+                        });
+                        
+                        duplicateGroups.push({
+                            type: 'name',
+                            identifier: `"${entry.testName}"`,
+                            testName: entry.testName,
+                            entries: matches
+                        });
+                    }
+                    processedTestNames.add(lowerName);
+                }
+            }
+        });
+        
+        return duplicateGroups;
+    }
+    
+    // Show duplicate details modal
+    function showDuplicateDetailsModal() {
+        const groups = window.currentDuplicateGroups || [];
+        
+        if (groups.length === 0) {
+            alert('No duplicates found.');
+            return;
+        }
+        
+        let html = `
+            <div id="duplicateDetailsModal" class="modal-overlay show" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" onclick="if(event.target === this) closeDuplicateDetailsModal()">
+                <div class="modal" style="background: white; border-radius: 16px; padding: 0; width: 900px; max-width: 95%; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
+                    <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.25rem;">⚠️ Duplicate Entries Details</h3>
+                            <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.8;">Found ${groups.length} duplicate group(s)</p>
+                        </div>
+                        <button onclick="closeDuplicateDetailsModal()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px;">✕</button>
+                    </div>
+                    
+                    <div style="padding: 24px; max-height: calc(90vh - 200px); overflow-y: auto;">
+        `;
+        
+        groups.forEach((group, groupIdx) => {
+            html += `
+                <div style="margin-bottom: 20px; border: 2px solid #fecaca; border-radius: 12px; overflow: hidden;">
+                    <div style="background: #fef2f2; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #dc2626;">${group.identifier}</strong>
+                            <span style="font-size: 12px; color: #92400e; margin-left: 8px;">(${group.entries.length} occurrences)</span>
+                        </div>
+                        <button type="button" onclick="event.stopPropagation(); removeDuplicatesInGroup(${groupIdx})" style="padding: 6px 14px; background: #dc2626; border: none; border-radius: 6px; color: white; font-weight: 600; font-size: 11px; cursor: pointer;">
+                            🗑️ Keep Original Only
+                        </button>
+                    </div>
+                    <div style="padding: 12px 16px;">
+            `;
+            
+            group.entries.forEach((entry, idx) => {
+                const isOriginal = idx === 0;
+                const engineer = data.engineers.find(e => e.id === entry.engineer);
+                const engineerName = engineer ? engineer.name : entry.engineer;
+                
+                html += `
+                    <div style="padding: 10px 12px; margin-bottom: 8px; border-radius: 8px; background: ${isOriginal ? '#d1fae5' : '#fef3c7'}; border-left: 4px solid ${isOriginal ? '#10b981' : '#f59e0b'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <span style="font-weight: 600; color: ${isOriginal ? '#065f46' : '#92400e'};">
+                                    ${isOriginal ? '✅ ORIGINAL' : '⚠️ DUPLICATE'}
+                                </span>
+                                <span style="margin-left: 12px; font-size: 13px; color: #374151;">
+                                    📅 <strong>${entry.weekInfo.month}</strong>, W${entry.weekInfo.week} (${entry.weekInfo.dates})
+                                </span>
+                            </div>
+                            <div style="font-size: 12px; color: #64748b;">
+                                👤 ${engineerName}
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 6px;">
+                            ${entry.testName}
+                            ${entry.adoId ? `<span style="margin-left: 8px;">• ADO #${entry.adoId}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                    </div>
+                    
+                    <div style="padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 13px; color: #64748b;">⚡ Removing duplicates will keep only the original (earliest) entry</span>
+                        <div style="display: flex; gap: 12px;">
+                            <button type="button" onclick="event.stopPropagation(); removeAllDuplicates()" style="padding: 10px 20px; background: #dc2626; border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                                🗑️ Remove All Duplicates
+                            </button>
+                            <button onclick="closeDuplicateDetailsModal()" style="padding: 10px 20px; background: #e2e8f0; border: none; border-radius: 8px; color: #374151; font-weight: 600; cursor: pointer;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', html);
+    }
+    
+    // Close duplicate details modal
+    function closeDuplicateDetailsModal() {
+        const modal = document.getElementById('duplicateDetailsModal');
+        if (modal) modal.remove();
+    }
+    
+    // Remove duplicates in a specific group (keep only original)
+    function removeDuplicatesInGroup(groupIdx) {
+        try {
+            const groups = window.currentDuplicateGroups || [];
+            const group = groups[groupIdx];
+            
+            if (!group) {
+                alert('Error: Group not found. Please close and reopen the duplicate details.');
+                return;
+            }
+            
+            if (!group.entries || group.entries.length < 2) {
+                alert('Error: Not enough entries in group.');
+                return;
+            }
+            
+            // Get entries to remove (all except the first one which is the original)
+            const entriesToRemove = group.entries.slice(1);
+            const originalEntry = group.entries[0];
+            
+            const confirmMsg = `Remove ${entriesToRemove.length} duplicate(s) for ${group.identifier}?\n\nThis will keep only the original entry from ${originalEntry.weekInfo?.month || 'Unknown'}, W${originalEntry.weekInfo?.week || '?'}.`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            let removedCount = 0;
+            
+            // Remove from data
+            entriesToRemove.forEach(entry => {
+                if (!entry.weekKey) {
+                    console.warn('Entry missing weekKey:', entry);
+                    return;
+                }
+                const weekEntries = data.android.weeklyEntries[entry.weekKey];
+                if (weekEntries) {
+                    const idx = weekEntries.findIndex(e => e.id === entry.id);
+                    if (idx !== -1) {
+                        weekEntries.splice(idx, 1);
+                        removedCount++;
+                    }
+                }
+            });
+            
+            // Recalculate actuals for affected weeks
+            recalculateWeekActuals();
+            
+            // Persist to localStorage immediately
+            localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
+            
+            // Refresh the UI
+            showSaveStatus(false);
+            renderTable();
+            updateSummary();
+            renderWeeklyLog();
+            updateBacklogBreakdown();
+            
+            // Check if there are remaining duplicates
+            const remainingDuplicates = collectDuplicateGroups();
+            
+            if (remainingDuplicates.length === 0) {
+                // No more duplicates - close modal and notify
+                closeDuplicateDetailsModal();
+                alert(`✅ Removed ${removedCount} duplicate(s). No more duplicates found!\n\n💾 Data saved locally! Click "Save to Cloud" to sync.`);
+            } else {
+                // Still have duplicates - refresh the modal instead of closing
+                closeDuplicateDetailsModal();
+                showDuplicateDetailsModal(remainingDuplicates);
+                
+                // Show a brief notification (non-blocking)
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                    background: #10b981; color: white; padding: 12px 24px; border-radius: 8px;
+                    font-weight: 600; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                `;
+                notification.textContent = `✅ Removed ${removedCount} duplicate(s). ${remainingDuplicates.length} group(s) remaining.`;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }
+        } catch (err) {
+            console.error('Error removing duplicates:', err);
+            alert('Error removing duplicates: ' + err.message);
+        }
+    }
+    
+    // Collect duplicate groups from current data (used to refresh modal)
+    function collectDuplicateGroups() {
+        const adoIdCount = {};
+        const testNameCount = {};
+        
+        // Scan all weekly entries for duplicates
+        Object.keys(data.android.weeklyEntries || {}).forEach(weekKey => {
+            const entries = data.android.weeklyEntries[weekKey] || [];
+            const weekInfo = WEEKS.find(w => `${w.year}-W${w.week}` === weekKey);
+            
+            entries.forEach(entry => {
+                const entryWithMeta = {
+                    ...entry,
+                    weekKey,
+                    weekInfo: weekInfo || { week: '?', dates: '?', month: '?' }
+                };
+                
+                // Track by ADO ID
+                if (entry.adoId) {
+                    if (!adoIdCount[entry.adoId]) {
+                        adoIdCount[entry.adoId] = [];
+                    }
+                    adoIdCount[entry.adoId].push(entryWithMeta);
+                }
+                
+                // Track by test name
+                const normalizedName = entry.testName.toLowerCase().trim();
+                if (!testNameCount[normalizedName]) {
+                    testNameCount[normalizedName] = [];
+                }
+                testNameCount[normalizedName].push(entryWithMeta);
+            });
+        });
+        
+        // Build duplicate groups
+        const duplicateGroups = [];
+        const processedIds = new Set();
+        
+        // Check ADO ID duplicates
+        Object.entries(adoIdCount).forEach(([adoId, entries]) => {
+            if (entries.length > 1) {
+                // Sort by week to show oldest first (original)
+                entries.sort((a, b) => {
+                    const aWeekNum = a.weekInfo.week || 0;
+                    const bWeekNum = b.weekInfo.week || 0;
+                    return aWeekNum - bWeekNum;
+                });
+                
+                duplicateGroups.push({
+                    type: 'ado',
+                    identifier: `ADO #${adoId}`,
+                    entries: entries
+                });
+                
+                entries.forEach(e => processedIds.add(e.id));
+            }
+        });
+        
+        // Check test name duplicates (only for entries not already flagged by ADO)
+        Object.entries(testNameCount).forEach(([name, entries]) => {
+            const unprocessedEntries = entries.filter(e => !processedIds.has(e.id));
+            if (unprocessedEntries.length > 1) {
+                // Sort by week to show oldest first
+                unprocessedEntries.sort((a, b) => {
+                    const aWeekNum = a.weekInfo.week || 0;
+                    const bWeekNum = b.weekInfo.week || 0;
+                    return aWeekNum - bWeekNum;
+                });
+                
+                duplicateGroups.push({
+                    type: 'name',
+                    identifier: `"${unprocessedEntries[0].testName}"`,
+                    entries: unprocessedEntries
+                });
+            }
+        });
+        
+        return duplicateGroups;
+    }
+    
+    // Recalculate week actuals after removing entries
+    function recalculateWeekActuals() {
+        // Go through all weeks and recalculate actuals based on entries
+        Object.keys(data.android.weeklyEntries || {}).forEach(weekKey => {
+            const entries = data.android.weeklyEntries[weekKey] || [];
+            const androidEntries = entries.filter(e => e.platform === 'android' || e.platform === 'both');
+            const iosEntries = entries.filter(e => e.platform === 'ios' || e.platform === 'both');
+            
+            data.android.weeklyActuals[weekKey] = androidEntries.length > 0 ? androidEntries.length : null;
+            data.ios.weeklyActuals[weekKey] = iosEntries.length > 0 ? iosEntries.length : null;
+        });
+    }
+    
+    // Remove all duplicates across all groups
+    function removeAllDuplicates() {
+        try {
+            const groups = window.currentDuplicateGroups || [];
+            
+            if (groups.length === 0) {
+                alert('No duplicates to remove.');
+                return;
+            }
+            
+            let totalDuplicates = 0;
+            groups.forEach(g => totalDuplicates += (g.entries?.length || 1) - 1);
+            
+            if (totalDuplicates === 0) {
+                alert('No duplicates to remove.');
+                return;
+            }
+            
+            if (!confirm(`Remove ALL ${totalDuplicates} duplicate entries across ${groups.length} groups?\n\nThis will keep only the original (earliest) entry for each test.`)) {
+                return;
+            }
+            
+            let removedCount = 0;
+            
+            // Remove all duplicates
+            groups.forEach(group => {
+                if (!group.entries || group.entries.length < 2) return;
+                
+                const entriesToRemove = group.entries.slice(1);
+                entriesToRemove.forEach(entry => {
+                    if (!entry.weekKey) {
+                        console.warn('Entry missing weekKey:', entry);
+                        return;
+                    }
+                    const weekEntries = data.android.weeklyEntries[entry.weekKey];
+                    if (weekEntries) {
+                        const idx = weekEntries.findIndex(e => e.id === entry.id);
+                        if (idx !== -1) {
+                            weekEntries.splice(idx, 1);
+                            removedCount++;
+                        }
+                    }
+                });
+            });
+            
+            // Recalculate actuals for affected weeks
+            recalculateWeekActuals();
+            
+            // Persist to localStorage immediately
+            localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
+            
+            // Close modal and refresh
+            closeDuplicateDetailsModal();
+            showSaveStatus(false);
+            renderTable();
+            updateSummary();
+            renderWeeklyLog();
+            updateBacklogBreakdown();
+            
+            alert(`✅ Removed ${removedCount} duplicate(s).\n\n💾 Data saved locally! Click "Save to Cloud" to sync.`);
+        } catch (err) {
+            console.error('Error removing all duplicates:', err);
+            alert('Error removing duplicates: ' + err.message);
+        }
     }
     
     // ========================================
