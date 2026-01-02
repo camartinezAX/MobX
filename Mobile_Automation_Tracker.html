@@ -1167,15 +1167,38 @@
                     </div>
                 </div>
                 <!-- Add New Engineer -->
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
                     <button onclick="showAddEngineerForm()" id="addEngineerBtn" style="padding: 6px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; color: #64748b; font-size: 12px; cursor: pointer;">
                         👤 Add New Engineer
                     </button>
-                    <div id="addEngineerForm" style="display: none; margin-top: 8px;">
+                    <button onclick="showImportFromDailyTracker()" id="importFromDailyBtn" style="padding: 6px 12px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 1px solid #10b981; border-radius: 6px; color: #065f46; font-size: 12px; cursor: pointer; font-weight: 600;">
+                        📥 Import from Daily Tracker
+                    </button>
+                    <div id="addEngineerForm" style="display: none; margin-top: 8px; width: 100%;">
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="newEngineerName" placeholder="Engineer name" style="flex: 1; padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px;">
                             <button onclick="addNewEngineer()" style="padding: 8px 16px; background: #10b981; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;">Add</button>
                             <button onclick="hideAddEngineerForm()" style="padding: 8px 12px; background: #fee2e2; border: none; border-radius: 6px; color: #dc2626; cursor: pointer;">✕</button>
+                        </div>
+                    </div>
+                    <!-- Import from Daily Tracker Form -->
+                    <div id="importFromDailyForm" style="display: none; margin-top: 8px; width: 100%;">
+                        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 16px; border-radius: 8px; border: 2px solid #10b981;">
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; color: var(--axos-navy); margin-bottom: 6px;">
+                                    📋 Paste exported data from Daily Tracker
+                                </label>
+                                <textarea id="dailyTrackerImportData" placeholder='Paste the JSON exported from Daily Tracker here...' style="width: 100%; height: 120px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 11px; resize: vertical; box-sizing: border-box;"></textarea>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="importFromDailyTracker()" style="padding: 8px 16px; background: #10b981; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;">
+                                    ✅ Import Tests
+                                </button>
+                                <button onclick="hideImportFromDailyTracker()" style="padding: 8px 12px; background: #fee2e2; border: none; border-radius: 6px; color: #dc2626; cursor: pointer;">✕ Cancel</button>
+                            </div>
+                            <p style="margin: 8px 0 0 0; font-size: 11px; color: #64748b;">
+                                💡 Use "✅ Completed This Week" filter in Daily Tracker, then click "📤 Export for Tracker"
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -2364,6 +2387,129 @@
         document.getElementById('addEngineerBtn').style.display = 'inline-block';
         document.getElementById('addEngineerForm').style.display = 'none';
         document.getElementById('newEngineerName').value = '';
+    }
+    
+    // Show import from Daily Tracker form
+    function showImportFromDailyTracker() {
+        document.getElementById('importFromDailyBtn').style.display = 'none';
+        document.getElementById('importFromDailyForm').style.display = 'block';
+    }
+    
+    // Hide import from Daily Tracker form
+    function hideImportFromDailyTracker() {
+        document.getElementById('importFromDailyBtn').style.display = 'inline-block';
+        document.getElementById('importFromDailyForm').style.display = 'none';
+        document.getElementById('dailyTrackerImportData').value = '';
+    }
+    
+    // Import tests from Daily Tracker export
+    function importFromDailyTracker() {
+        const importText = document.getElementById('dailyTrackerImportData').value.trim();
+        
+        if (!importText) {
+            alert('Please paste the exported data from Daily Tracker');
+            return;
+        }
+        
+        let importData;
+        try {
+            importData = JSON.parse(importText);
+        } catch (e) {
+            alert('Invalid JSON data. Please copy the entire export from Daily Tracker.');
+            return;
+        }
+        
+        // Validate import data structure
+        if (!importData.entries || !Array.isArray(importData.entries)) {
+            alert('Invalid import data format. Missing "entries" array.');
+            return;
+        }
+        
+        if (importData.entries.length === 0) {
+            alert('No test entries found in the import data.');
+            return;
+        }
+        
+        // Map engineer IDs from Daily Tracker to this tracker
+        // First, add any new engineers from the import
+        const engineerMap = {};
+        if (importData.engineers && Array.isArray(importData.engineers)) {
+            importData.engineers.forEach(eng => {
+                const existingEngineer = data.engineers.find(e => 
+                    e.name.toLowerCase() === eng.name.toLowerCase() ||
+                    e.id === eng.id
+                );
+                
+                if (existingEngineer) {
+                    engineerMap[eng.id] = existingEngineer.id;
+                } else {
+                    // Add new engineer
+                    const newId = eng.name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+                    data.engineers.push({ id: newId, name: eng.name });
+                    engineerMap[eng.id] = newId;
+                }
+            });
+        }
+        
+        // Import the tests
+        let importedCount = 0;
+        let skippedCount = 0;
+        
+        importData.entries.forEach(entry => {
+            // Check for duplicates by ADO ID or test name
+            const duplicateAdo = entry.adoId && tempTestEntries.find(e => e.adoId === entry.adoId);
+            const duplicateName = tempTestEntries.find(e => 
+                e.testName.toLowerCase() === entry.testName.toLowerCase()
+            );
+            
+            if (duplicateAdo || duplicateName) {
+                skippedCount++;
+                return; // Skip duplicates
+            }
+            
+            // Map engineer ID
+            let mappedEngineerId = engineerMap[entry.engineer];
+            if (!mappedEngineerId) {
+                // If no mapping found, try to find engineer by name
+                const existingEngineer = data.engineers.find(e => 
+                    e.id === entry.engineer || 
+                    e.name.toLowerCase().includes(entry.engineer.toLowerCase())
+                );
+                mappedEngineerId = existingEngineer ? existingEngineer.id : data.engineers[0]?.id;
+            }
+            
+            // Create the test entry
+            const newEntry = {
+                id: 'entry-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                engineer: mappedEngineerId,
+                testName: entry.testName,
+                adoId: entry.adoId || null,
+                vertical: entry.vertical || 'other',
+                priority: entry.priority || 'P1',
+                platform: entry.platform || 'both',
+                timestamp: new Date().toISOString()
+            };
+            
+            tempTestEntries.push(newEntry);
+            importedCount++;
+        });
+        
+        // Update UI
+        renderTestEntriesList();
+        updateModalTotals();
+        populateEngineerDropdown();
+        hideImportFromDailyTracker();
+        
+        // Show result
+        let message = `✅ Imported ${importedCount} test(s)`;
+        if (skippedCount > 0) {
+            message += `\n⚠️ Skipped ${skippedCount} duplicate(s)`;
+        }
+        if (importData.dateRange) {
+            const rangeType = importData.dateRange.filterByCompletedDate ? 'Completed' : 'Added';
+            message += `\n📅 ${rangeType}: ${importData.dateRange.start || 'All time'} → ${importData.dateRange.end || 'Now'}`;
+        }
+        alert(message);
     }
     
     function addNewEngineer() {

@@ -1013,6 +1013,7 @@
                     <!-- Date Preset Buttons -->
                     <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
                         <button class="day-filter-btn active" data-preset="week" onclick="setInventoryDatePreset('week')">📆 This Week</button>
+                        <button class="day-filter-btn" data-preset="completed-week" onclick="setInventoryDatePreset('completed-week')" style="background: #d1fae5; border-color: #10b981;">✅ Completed This Week</button>
                         <button class="day-filter-btn" data-preset="month" onclick="setInventoryDatePreset('month')">📅 This Month</button>
                         <button class="day-filter-btn" data-preset="year" onclick="setInventoryDatePreset('year')">📆 This Year</button>
                         <button class="day-filter-btn" data-preset="today" onclick="setInventoryDatePreset('today')">⭐ Today</button>
@@ -1065,21 +1066,28 @@
                 </div>
                 
                 <!-- Test Count Summary with Toggle -->
-                <div id="inventorySummary" style="display: flex; gap: 16px; margin-bottom: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 13px; align-items: center; justify-content: space-between;">
+                <div id="inventorySummary" style="display: flex; gap: 16px; margin-bottom: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 13px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                     <div style="display: flex; gap: 16px; align-items: center;">
                         <span><strong id="filteredTestCount">0</strong> tests shown</span>
                         <span style="color: #64748b;">|</span>
                         <span>🤖 Android: <strong id="androidCount">0</strong></span>
                         <span>🍎 iOS: <strong id="iosCount">0</strong></span>
                     </div>
-                    <button onclick="toggleInventoryTable()" id="tableToggleBtn" 
-                            style="padding: 8px 16px; border: none; border-radius: 8px; background: var(--axos-navy); color: white; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px;">
-                        <span id="tableToggleIcon">▼</span> Show Table
-                    </button>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button onclick="exportForAutomationTracker()" id="exportForTrackerBtn" 
+                                style="padding: 8px 16px; border: none; border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px;"
+                                title="Export filtered tests in a format compatible with Mobile Automation Tracker">
+                            📤 Export for Tracker
+                        </button>
+                        <button onclick="toggleInventoryTable()" id="tableToggleBtn" 
+                                style="padding: 8px 16px; border: none; border-radius: 8px; background: var(--axos-navy); color: white; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 6px;">
+                            <span id="tableToggleIcon">▲</span> Hide Table
+                        </button>
+                    </div>
                 </div>
                 
-                <!-- Test List Table (Collapsed by default) -->
-                <div id="testTableContainer" class="test-list-container" style="max-height: 500px; overflow-y: auto; display: none;">
+                <!-- Test List Table (Expanded by default) -->
+                <div id="testTableContainer" class="test-list-container" style="max-height: 500px; overflow-y: auto;">
                     <table class="test-list" id="testListTable">
                         <thead>
                             <tr>
@@ -1430,8 +1438,9 @@
     // Test Inventory date filters
     let inventoryStartDate = null;
     let inventoryEndDate = null;
-    let inventoryDatePreset = 'week'; // 'today', 'week', 'month', 'year', 'all', 'custom'
-    let isInventoryCollapsed = true; // Table is collapsed by default
+    let inventoryDatePreset = 'week'; // 'today', 'week', 'month', 'year', 'all', 'custom', 'completed-week'
+    let isInventoryCollapsed = false; // Table is expanded by default
+    let filterByCompletedDate = false; // When true, filter by dateCompleted instead of dateAdded
     
     // Helper: Count tests (platform "both" counts as 2)
     function getEffectiveCount(tests) {
@@ -2109,7 +2118,12 @@
         // Filter by date range
         if (inventoryStartDate || inventoryEndDate) {
             filteredTests = filteredTests.filter(t => {
-                const testDate = t.dateAdded;
+                // Use dateCompleted if filterByCompletedDate is set, otherwise use dateAdded
+                const testDate = filterByCompletedDate ? t.dateCompleted : t.dateAdded;
+                
+                // If filtering by completed date and test has no dateCompleted, exclude it
+                if (filterByCompletedDate && !testDate) return false;
+                
                 if (inventoryStartDate && testDate < inventoryStartDate) return false;
                 if (inventoryEndDate && testDate > inventoryEndDate) return false;
                 return true;
@@ -2545,6 +2559,9 @@
         inventoryDatePreset = preset;
         const today = getPSTDate();
         
+        // Reset filterByCompletedDate unless it's the completed-week preset
+        filterByCompletedDate = (preset === 'completed-week');
+        
         // Update button states
         document.querySelectorAll('[data-preset]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.preset === preset);
@@ -2556,6 +2573,7 @@
                 inventoryEndDate = getPSTDateString(today);
                 break;
             case 'week':
+            case 'completed-week': // Same date range, but filterByCompletedDate is set
                 const weekStart = new Date(today);
                 weekStart.setDate(today.getDate() - today.getDay()); // Sunday
                 const weekEnd = new Date(weekStart);
@@ -2611,15 +2629,162 @@
     function updateInventoryDateLabel() {
         const label = document.getElementById('inventoryDateRangeLabel');
         
+        const filterType = filterByCompletedDate ? '✅ Completed' : '📅 Added';
+        
         if (!inventoryStartDate && !inventoryEndDate) {
             label.textContent = 'Showing all tests';
         } else if (inventoryStartDate === inventoryEndDate) {
-            label.textContent = formatDate(inventoryStartDate);
+            label.textContent = `${filterType}: ${formatDate(inventoryStartDate)}`;
         } else {
             const startFormatted = inventoryStartDate ? formatDate(inventoryStartDate) : 'Beginning';
             const endFormatted = inventoryEndDate ? formatDate(inventoryEndDate) : 'Now';
-            label.textContent = `${startFormatted} → ${endFormatted}`;
+            label.textContent = `${filterType}: ${startFormatted} → ${endFormatted}`;
         }
+    }
+    
+    // Export filtered tests for Mobile Automation Tracker
+    function exportForAutomationTracker() {
+        // Get currently filtered tests (same logic as renderTestList)
+        let filteredTests = data.tests;
+        
+        // Filter by date range
+        if (inventoryStartDate || inventoryEndDate) {
+            filteredTests = filteredTests.filter(t => {
+                const testDate = filterByCompletedDate ? t.dateCompleted : t.dateAdded;
+                if (filterByCompletedDate && !testDate) return false;
+                if (inventoryStartDate && testDate < inventoryStartDate) return false;
+                if (inventoryEndDate && testDate > inventoryEndDate) return false;
+                return true;
+            });
+        }
+        
+        // Filter by person
+        if (currentPersonFilter !== 'all') {
+            filteredTests = filteredTests.filter(t => t.ownerId === currentPersonFilter);
+        }
+        
+        // Filter by status
+        if (currentStatusFilter !== 'all') {
+            filteredTests = filteredTests.filter(t => t.status === currentStatusFilter);
+        }
+        
+        // Filter by search
+        if (currentSearchFilter) {
+            const search = currentSearchFilter.toLowerCase();
+            filteredTests = filteredTests.filter(t => 
+                t.name.toLowerCase().includes(search) ||
+                getPersonName(t.ownerId).toLowerCase().includes(search) ||
+                t.vertical.toLowerCase().includes(search) ||
+                t.platform.toLowerCase().includes(search)
+            );
+        }
+        
+        if (filteredTests.length === 0) {
+            alert('No tests to export. Adjust your filters to see tests.');
+            return;
+        }
+        
+        // Convert to Automation Tracker format
+        const trackerEntries = filteredTests.map(test => {
+            // Parse ADO ID from URL if present
+            let adoId = null;
+            if (test.adoTaskLink) {
+                const match = test.adoTaskLink.match(/\/(?:_queries|_workitems)\/edit\/(\d+)/);
+                adoId = match ? match[1] : null;
+            }
+            
+            return {
+                id: 'entry-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                engineer: test.ownerId,
+                testName: test.name,
+                adoId: adoId,
+                vertical: test.vertical,
+                priority: test.priority || 'P1',
+                platform: test.platform, // 'android', 'ios', or 'both'
+                timestamp: new Date().toISOString(),
+                // Extra info for reference
+                _dateAdded: test.dateAdded,
+                _dateCompleted: test.dateCompleted,
+                _status: test.status,
+                _androidStatus: test.androidStatus,
+                _iosStatus: test.iosStatus
+            };
+        });
+        
+        // Create export data
+        const exportData = {
+            source: 'mobile-daily-tracker',
+            exportDate: new Date().toISOString(),
+            dateRange: {
+                start: inventoryStartDate,
+                end: inventoryEndDate,
+                filterByCompletedDate: filterByCompletedDate
+            },
+            entries: trackerEntries,
+            // Include engineer mapping
+            engineers: data.people.map(p => ({ id: p.id, name: p.name }))
+        };
+        
+        // Show export modal with the data
+        const exportStr = JSON.stringify(exportData, null, 2);
+        
+        // Create a modal for export
+        const modalHtml = `
+            <div id="trackerExportModal" class="modal-overlay show" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+                <div class="modal" style="background: white; border-radius: 16px; padding: 24px; width: 700px; max-width: 95%; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <h3 style="margin-top: 0; color: var(--axos-navy); display: flex; align-items: center; gap: 8px;">
+                        📤 Export for Mobile Automation Tracker
+                    </h3>
+                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; background: #d1fae5; color: #065f46; font-size: 13px;">
+                        <strong>✅ ${filteredTests.length} tests ready for export</strong><br>
+                        <span style="font-size: 12px;">Copy this data and use "Import from Daily Tracker" in the Mobile Automation Tracker</span>
+                    </div>
+                    <textarea id="trackerExportTextarea" readonly style="width: 100%; height: 300px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-family: monospace; font-size: 11px; resize: none; background: #f8fafc; box-sizing: border-box;">${escapeHtml(exportStr)}</textarea>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button onclick="copyTrackerExportData()" style="flex: 1; padding: 12px; border: none; border-radius: 8px; background: var(--gradient-orange); color: var(--axos-navy); cursor: pointer; font-weight: 600;">
+                            📋 Copy to Clipboard
+                        </button>
+                        <button onclick="closeTrackerExportModal()" style="flex: 1; padding: 12px; border: none; border-radius: 8px; background: #fee2e2; color: #dc2626; cursor: pointer; font-weight: 600;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert modal into body
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    
+    // Helper to escape HTML
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    
+    // Copy tracker export data
+    function copyTrackerExportData() {
+        const textarea = document.getElementById('trackerExportTextarea');
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+        
+        try {
+            document.execCommand('copy');
+            alert('✅ Copied to clipboard! Now paste in Mobile Automation Tracker.');
+        } catch(e) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textarea.value).then(() => {
+                    alert('✅ Copied to clipboard! Now paste in Mobile Automation Tracker.');
+                }).catch(() => {
+                    alert('⚠️ Copy failed. Please select all text manually (Ctrl+A) and copy (Ctrl+C)');
+                });
+            }
+        }
+    }
+    
+    // Close tracker export modal
+    function closeTrackerExportModal() {
+        const modal = document.getElementById('trackerExportModal');
+        if (modal) modal.remove();
     }
     
     // Update inventory summary counts
