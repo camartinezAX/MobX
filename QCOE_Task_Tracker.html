@@ -1533,8 +1533,8 @@
         let lastSyncTime = null;
         let syncError = null;
         let hasUnsavedChanges = false;
-        let autoSaveTimer = null;
-        const AUTO_SAVE_DELAY = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const AUTO_SAVE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+        let nextAutoSaveTime = null;
 
         // Data storage
         let tasks = {
@@ -1559,6 +1559,9 @@
             renderTasks();
             updateStats();
             renderCalendar();
+            
+            // Start the continuous 5-minute auto-save timer
+            startAutoSaveTimer();
             
             // Show configuration status
             if (!USE_GOOGLE_SHEETS) {
@@ -1650,9 +1653,7 @@
             // Always save to localStorage first (instant)
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
             
-            // Clear unsaved flag, indicator, and auto-save timer
-            hasUnsavedChanges = false;
-            autoSaveStartTime = null;
+            // Clear unsaved flag and indicator
             clearUnsavedIndicator();
             
             if (USE_GOOGLE_SHEETS) {
@@ -1727,80 +1728,66 @@
         // Mark data as changed (unsaved)
         function markAsChanged() {
             hasUnsavedChanges = true;
-            showSyncStatus('unsaved');
+            updateStatusDisplay();
             // Highlight save button
             const saveBtn = document.getElementById('saveBtn');
             if (saveBtn) {
                 saveBtn.classList.add('save-highlight');
                 saveBtn.innerHTML = '💾 Save Changes*';
             }
-            
-            // Reset auto-save timer (5 minutes after last change)
-            if (autoSaveTimer) {
-                clearTimeout(autoSaveTimer);
-            }
-            autoSaveTimer = setTimeout(() => {
-                if (hasUnsavedChanges) {
-                    console.log('⏰ Auto-saving after 5 minutes of inactivity...');
-                    saveData();
-                    showToast('⏰ Auto-saved after 5 minutes', 'success');
-                }
-            }, AUTO_SAVE_DELAY);
-            
-            // Update countdown display
-            updateAutoSaveCountdown();
         }
         
         // Clear unsaved indicator
         function clearUnsavedIndicator() {
+            hasUnsavedChanges = false;
             const saveBtn = document.getElementById('saveBtn');
             if (saveBtn) {
                 saveBtn.classList.remove('save-highlight');
                 saveBtn.innerHTML = '💾 Save Changes';
             }
-            // Clear auto-save timer
-            if (autoSaveTimer) {
-                clearTimeout(autoSaveTimer);
-                autoSaveTimer = null;
-            }
-            // Clear countdown interval
-            if (window.countdownInterval) {
-                clearInterval(window.countdownInterval);
-                window.countdownInterval = null;
-            }
         }
         
-        // Update auto-save countdown display
-        let autoSaveStartTime = null;
-        function updateAutoSaveCountdown() {
-            autoSaveStartTime = Date.now();
+        // Start the continuous auto-save timer
+        function startAutoSaveTimer() {
+            nextAutoSaveTime = Date.now() + AUTO_SAVE_INTERVAL;
             
-            // Clear existing countdown
-            if (window.countdownInterval) {
-                clearInterval(window.countdownInterval);
-            }
-            
-            // Update countdown every second
-            window.countdownInterval = setInterval(() => {
-                if (!hasUnsavedChanges || !autoSaveStartTime) {
-                    clearInterval(window.countdownInterval);
-                    return;
-                }
+            // Update display every second
+            setInterval(() => {
+                updateStatusDisplay();
                 
-                const elapsed = Date.now() - autoSaveStartTime;
-                const remaining = Math.max(0, AUTO_SAVE_DELAY - elapsed);
-                const minutes = Math.floor(remaining / 60000);
-                const seconds = Math.floor((remaining % 60000) / 1000);
-                
-                const statusEl = document.getElementById('syncStatus');
-                if (statusEl && hasUnsavedChanges) {
-                    statusEl.innerHTML = `⚠️ Unsaved (auto-save in ${minutes}:${seconds.toString().padStart(2, '0')})`;
-                }
-                
-                if (remaining <= 0) {
-                    clearInterval(window.countdownInterval);
+                // Check if it's time to auto-save
+                if (Date.now() >= nextAutoSaveTime) {
+                    if (hasUnsavedChanges) {
+                        console.log('⏰ Auto-saving...');
+                        saveData();
+                        showToast('⏰ Auto-saved!', 'success');
+                    }
+                    // Reset timer for next cycle
+                    nextAutoSaveTime = Date.now() + AUTO_SAVE_INTERVAL;
                 }
             }, 1000);
+        }
+        
+        // Update the status display with countdown
+        function updateStatusDisplay() {
+            const statusEl = document.getElementById('syncStatus');
+            if (!statusEl || !nextAutoSaveTime) return;
+            
+            const remaining = Math.max(0, nextAutoSaveTime - Date.now());
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            const countdown = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (hasUnsavedChanges) {
+                statusEl.className = 'sync-status unsaved';
+                statusEl.innerHTML = `⚠️ Unsaved · saves in ${countdown}`;
+            } else if (USE_GOOGLE_SHEETS) {
+                statusEl.className = 'sync-status synced';
+                statusEl.innerHTML = `☁️ Synced · next check ${countdown}`;
+            } else {
+                statusEl.className = 'sync-status local';
+                statusEl.innerHTML = `💾 Saved · next check ${countdown}`;
+            }
         }
         
         // Refresh data from cloud
@@ -1818,7 +1805,6 @@
             }
             
             await loadData();
-            hasUnsavedChanges = false;
             clearUnsavedIndicator();
             renderTasks();
             updateStats();
