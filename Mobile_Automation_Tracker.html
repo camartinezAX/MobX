@@ -1622,6 +1622,74 @@
                typeof d.android.weeklyActuals === 'object';
     }
     
+    // Normalize vertical values to ensure consistency
+    // Fixes data imported with inconsistent vertical keys (e.g., "megamenu" -> "mega-menu")
+    function normalizeVerticalValues() {
+        const verticalMapping = {
+            // Fix case/spacing inconsistencies
+            'megamenu': 'mega-menu',
+            'mega menu': 'mega-menu',
+            'Mega Menu': 'mega-menu',
+            'MegaMenu': 'mega-menu',
+            'evochat': 'evo-chat',
+            'evo chat': 'evo-chat',
+            'Evo Chat': 'evo-chat',
+            'EvoChat': 'evo-chat',
+            // Normalize any other potential variations
+            'Login': 'login',
+            'Registration': 'registration',
+            'Home': 'home',
+            'Bank': 'bank',
+            'Borrow': 'borrow',
+            'Invest': 'invest',
+            'Plan': 'plan',
+            'Other': 'other'
+        };
+        
+        let updated = false;
+        
+        // Normalize Android entries
+        if (data.android && data.android.weeklyEntries) {
+            Object.keys(data.android.weeklyEntries).forEach(weekKey => {
+                const entries = data.android.weeklyEntries[weekKey];
+                if (Array.isArray(entries)) {
+                    entries.forEach(entry => {
+                        if (entry.vertical && verticalMapping[entry.vertical]) {
+                            const oldValue = entry.vertical;
+                            entry.vertical = verticalMapping[entry.vertical];
+                            console.log(`🔧 [Android] Normalized vertical "${oldValue}" → "${entry.vertical}" for: ${entry.testName}`);
+                            updated = true;
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Normalize iOS entries
+        if (data.ios && data.ios.weeklyEntries) {
+            Object.keys(data.ios.weeklyEntries).forEach(weekKey => {
+                const entries = data.ios.weeklyEntries[weekKey];
+                if (Array.isArray(entries)) {
+                    entries.forEach(entry => {
+                        if (entry.vertical && verticalMapping[entry.vertical]) {
+                            const oldValue = entry.vertical;
+                            entry.vertical = verticalMapping[entry.vertical];
+                            console.log(`🔧 [iOS] Normalized vertical "${oldValue}" → "${entry.vertical}" for: ${entry.testName}`);
+                            updated = true;
+                        }
+                    });
+                }
+            });
+        }
+        
+        if (updated) {
+            console.log('✅ Vertical normalization complete - saving data...');
+            localStorage.setItem('mobileAutomationTrackerDual', JSON.stringify(data));
+        }
+        
+        return updated;
+    }
+    
     // Load data from Google Sheets (with localStorage fallback)
     async function loadData() {
         // Try Google Sheets first
@@ -3728,6 +3796,9 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', async function() {
         await loadData();
+        
+        // Normalize any inconsistent vertical values (e.g., "megamenu" -> "mega-menu")
+        normalizeVerticalValues();
         
         // Set the weekly log to the current week
         currentWeekIdx = findCurrentWeekIndex();

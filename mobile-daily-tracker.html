@@ -1271,8 +1271,8 @@
                     <option value="borrow">💳 Borrow</option>
                     <option value="invest">📈 Invest</option>
                     <option value="plan">📋 Plan</option>
-                    <option value="megamenu">☰ Mega Menu</option>
-                    <option value="evochat">💬 Evo Chat</option>
+                    <option value="mega-menu">☰ Mega Menu</option>
+                    <option value="evo-chat">💬 Evo Chat</option>
                     <option value="other">📌 Other</option>
                 </select>
             </div>
@@ -1498,6 +1498,9 @@
         
         // Load data (async - will fetch from Google Sheets if configured)
         await loadData();
+        
+        // Normalize any inconsistent vertical values (e.g., "megamenu" -> "mega-menu")
+        normalizeVerticalValues();
         
         // Backfill dateCompleted for already completed tests from daily logs
         backfillDateCompleted();
@@ -3385,6 +3388,49 @@
     // Hide timeline modal
     function hideTimelineModal() {
         document.getElementById('timelineModal').classList.remove('show');
+    }
+    
+    // Normalize vertical values to ensure consistency with Mobile Automation Tracker
+    // This fixes data that was saved with inconsistent vertical keys (e.g., "megamenu" -> "mega-menu")
+    function normalizeVerticalValues() {
+        const verticalMapping = {
+            // Fix case/spacing inconsistencies
+            'megamenu': 'mega-menu',
+            'mega menu': 'mega-menu',
+            'Mega Menu': 'mega-menu',
+            'MegaMenu': 'mega-menu',
+            'evochat': 'evo-chat',
+            'evo chat': 'evo-chat',
+            'Evo Chat': 'evo-chat',
+            'EvoChat': 'evo-chat',
+            // Normalize any other potential variations
+            'Login': 'login',
+            'Registration': 'registration',
+            'Home': 'home',
+            'Bank': 'bank',
+            'Borrow': 'borrow',
+            'Invest': 'invest',
+            'Plan': 'plan',
+            'Other': 'other'
+        };
+        
+        let updated = false;
+        
+        data.tests.forEach(test => {
+            if (test.vertical && verticalMapping[test.vertical]) {
+                const oldValue = test.vertical;
+                test.vertical = verticalMapping[test.vertical];
+                console.log(`🔧 Normalized vertical "${oldValue}" → "${test.vertical}" for test: ${test.name}`);
+                updated = true;
+            }
+        });
+        
+        if (updated) {
+            console.log('✅ Vertical normalization complete - saving data...');
+            localStorage.setItem('mobileDailyTracker', JSON.stringify(data));
+        }
+        
+        return updated;
     }
     
     // Backfill dateCompleted from daily logs for already completed tests
