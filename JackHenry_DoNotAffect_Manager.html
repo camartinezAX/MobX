@@ -1134,6 +1134,7 @@
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
                     <span id="syncStatus" class="sync-status synced">☁️ Local Only</span>
+                    <button class="btn btn-outline" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;" onclick="testConnection()" title="Test Google Script Connection">🔌 Test</button>
                     <button class="btn btn-outline" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;" onclick="syncFromCloud()" title="Sync from Cloud">🔄 Sync</button>
                     <button class="btn btn-outline" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;" onclick="saveToCloud()">💾 Save</button>
                     <button class="btn btn-outline" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: white;" onclick="showExportModal()">📤 Backup</button>
@@ -1381,7 +1382,7 @@
         // =====================
         // GOOGLE SHEETS CONFIGURATION
         // =====================
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3MCFIhtxwhVKWE9SvPgsJjBBlOt_jl_pRdMGjsb8PkwyLvWiT686Qlg7Fy5VfCOuV/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyv3oLNTSRq3lLTkhRPhVqrUsBbR-Adsc-M1-WTG1jyVw1C1jNuEG244qciGPr-bi9C/exec';
         
         // Set to true once you've configured your Google Script URL
         const USE_GOOGLE_SHEETS = GOOGLE_SCRIPT_URL !== 'YOUR_GOOGLE_SCRIPT_URL_HERE';
@@ -1474,7 +1475,21 @@
             // If Google Sheets is configured, fetch from there
             if (USE_GOOGLE_SHEETS) {
                 try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                    
+                    // Google Apps Script requires redirect: 'follow' and special handling
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'GET',
+                        redirect: 'follow',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
                     const result = await response.json();
                     
                     if (result.success && result.data) {
@@ -1491,15 +1506,20 @@
                         
                         showSyncStatus('synced');
                         console.log('✅ Data loaded from Google Sheets');
-                    } else if (!result.data) {
+                    } else if (result.success && !result.data) {
+                        // No data on server yet, that's okay
                         showSyncStatus('synced');
-                        console.log('📝 No data on server, using local data');
+                        console.log('📝 No data on server yet, using local data');
                     } else {
-                        throw new Error(result.error || 'Unknown error');
+                        throw new Error(result.error || 'Invalid response from server');
                     }
                 } catch (error) {
                     console.error('❌ Failed to load from Google Sheets:', error);
+                    // Show error but don't break the app - local data is still usable
                     showSyncStatus('error');
+                    if (error.name === 'AbortError') {
+                        console.log('⏱️ Request timed out');
+                    }
                 }
             } else {
                 showSyncStatus('local');
@@ -1561,17 +1581,94 @@
                 return;
             }
             
-            if (!confirm('This will reload data from the cloud. Any unsaved local changes will be lost. Continue?')) {
-                return;
-            }
-            
             showSyncStatus('syncing');
-            await loadData();
-            updateStats();
-            renderTeams();
-            renderItems();
-            updateExportTeamSelect();
-            showToast('Synced', 'Data refreshed from cloud', 'success');
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'GET',
+                    redirect: 'follow',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    state.teams = result.data.teams || [];
+                    state.items = result.data.items || [];
+                    state.lastUpdated = result.data.lastUpdated || new Date().toISOString();
+                    
+                    localStorage.setItem('jackHenryDoNotAffect', JSON.stringify({
+                        teams: state.teams,
+                        items: state.items,
+                        lastUpdated: state.lastUpdated
+                    }));
+                    
+                    updateStats();
+                    renderTeams();
+                    renderItems();
+                    updateExportTeamSelect();
+                    
+                    showSyncStatus('synced');
+                    showToast('Synced! ✅', `Loaded ${state.items.length} accounts from cloud`, 'success');
+                } else if (result.success && !result.data) {
+                    showSyncStatus('synced');
+                    showToast('Connected', 'No data on cloud yet. Save to upload your local data.', 'info');
+                } else {
+                    throw new Error(result.error || 'Invalid response');
+                }
+            } catch (error) {
+                console.error('❌ Sync failed:', error);
+                showSyncStatus('error');
+                
+                if (error.name === 'AbortError') {
+                    showToast('Timeout', 'Connection timed out. Check your internet.', 'error');
+                } else if (error.message.includes('Failed to fetch')) {
+                    showToast('CORS Error', 'Google Script needs CORS fix. Check console for details.', 'error');
+                    console.log('🔧 To fix CORS, ensure your Google Apps Script returns proper headers.');
+                    console.log('🔧 The script must be deployed with "Anyone" access (not "Anyone with Google account").');
+                } else {
+                    showToast('Sync Failed', error.message, 'error');
+                }
+            }
+        }
+        
+        // Test connection to Google Script
+        async function testConnection() {
+            showToast('Testing...', 'Checking connection to Google Sheets...', 'info');
+            console.log('🔍 Testing connection to:', GOOGLE_SCRIPT_URL);
+            
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response headers:', [...response.headers.entries()]);
+                
+                const text = await response.text();
+                console.log('📡 Response body:', text);
+                
+                try {
+                    const json = JSON.parse(text);
+                    console.log('✅ Valid JSON response:', json);
+                    showToast('Connected! ✅', 'Google Script is responding correctly.', 'success');
+                } catch (e) {
+                    console.log('⚠️ Response is not JSON:', text.substring(0, 200));
+                    showToast('Invalid Response', 'Script returned non-JSON. Check console.', 'warning');
+                }
+            } catch (error) {
+                console.error('❌ Connection test failed:', error);
+                showToast('Connection Failed', `${error.message}. Check console for details.`, 'error');
+            }
         }
 
         // =====================
