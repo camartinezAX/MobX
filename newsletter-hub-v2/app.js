@@ -139,7 +139,7 @@ function initTypingEffect() {
     const element = document.getElementById('typingText');
     if (!element) return;
     
-    const words = ['Status Hub', 'Team Insights', 'AI Analytics', 'Newsletter'];
+    const words = ['Status Hub', 'Team Insights', 'AI Analytics', 'Sprint Updates'];
     let wordIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
