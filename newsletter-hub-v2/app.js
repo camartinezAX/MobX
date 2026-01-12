@@ -203,6 +203,7 @@ function initScrollAnimations() {
     // Also observe team cards and stat cards for bar animations
     const animatedCards = document.querySelectorAll('.hero-stat-card, .overview-card, .team-bar-row');
     animatedCards.forEach(el => observer.observe(el));
+    
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
