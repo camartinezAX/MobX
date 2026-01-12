@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axos Org Hub | Quality Engineering</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Cursor Follower -->
+    <div class="cursor-follower" id="cursorFollower"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <a href="#hero" class="logo" id="logoHome">
+            <img src="https://management.org/wp-content/uploads/2022/02/Axos-logo.png" alt="Axos" class="logo-img">
+            <div class="logo-text">
+                <span class="logo-main">Axos</span>
+                <span class="logo-sub">Org Hub</span>
+            </div>
+        </a>
+
+        <div class="nav-center">
+            <a href="#overview" class="nav-link">Overview</a>
+            <div class="nav-dropdown">
+                <button class="nav-link dropdown-trigger">
+                    Teams
+                    <svg class="dropdown-icon" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-grid">
+                        <a href="#" class="dropdown-item" data-team="ue-borrow">
+                            <span class="item-icon">🔧</span>
+                            <span class="item-text">UE-Borrow</span>
+                        </a>
+                        <a href="#" class="dropdown-item" data-team="robo">
+                            <span class="item-icon">🤖</span>
+                            <span class="item-text">ROBO</span>
+                        </a>
+                        <a href="#" class="dropdown-item" data-team="qcoe">
+                            <span class="item-icon">⭐</span>
+                            <span class="item-text">QCOE</span>
+                        </a>
+                        <a href="#" class="dropdown-item" data-team="avengers">
+                            <span class="item-icon">🦸</span>
+                            <span class="item-text">Plan / Avengers</span>
+                        </a>
+                        <a href="#" class="dropdown-item" data-team="wfo">
+                            <span class="item-icon">⚙️</span>
+                            <span class="item-text">WFO - OutSystems</span>
+                        </a>
+                        <a href="#" class="dropdown-item" data-team="core-services">
+                            <span class="item-icon">🔌</span>
+                            <span class="item-text">Core Services</span>
+                        </a>
+                        <a href="#" class="dropdown-item" data-team="ibd">
+                            <span class="item-icon">🏦</span>
+                            <span class="item-text">WL-IBD</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <a href="#automation" class="nav-link">Automation</a>
+            <a href="#ai-impact" class="nav-link">AI Impact</a>
+            <a href="#mvp" class="nav-link">MVP</a>
+        </div>
+
+        <div class="nav-right">
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span class="live-text">Dec 15 - Jan 09</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+            <div class="grid-lines"></div>
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge reveal-up">
+                <span class="badge-icon">📰</span>
+                <span class="badge-text">Bi-Weekly Newsletter</span>
+                <span class="badge-date">Dec 15 - Jan 09</span>
+            </div>
+
+            <h1 class="hero-title">
+                <span class="title-line reveal-up" style="--delay: 0.1s">Axos Organization</span>
+                <span class="title-line title-highlight reveal-up" style="--delay: 0.2s">
+                    <span class="typing-text" id="typingText"></span>
+                    <span class="typing-cursor">|</span>
+                </span>
+            </h1>
+
+            <p class="hero-subtitle reveal-up" style="--delay: 0.4s">
+                Your centralized hub for QE team updates, automation metrics, and AI-powered insights across Axos Bank
+            </p>
+
+            <div class="hero-cta reveal-up" style="--delay: 0.5s">
+                <a href="#overview" class="btn-primary">
+                    <span>Explore Dashboard</span>
+                    <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="#teams" class="btn-secondary">
+                    <span>View Teams</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div class="hero-stat-card reveal-scale" style="--delay: 0.6s">
+                <div class="stat-number" data-count="7">0</div>
+                <div class="stat-label">Active Teams</div>
+                <div class="stat-bar"><span style="--width: 100%"></span></div>
+            </div>
+            <div class="hero-stat-card reveal-scale" style="--delay: 0.7s">
+                <div class="stat-number" data-count="264">0</div>
+                <div class="stat-label">PBIs Delivered</div>
+                <div class="stat-bar"><span style="--width: 88%"></span></div>
+            </div>
+            <div class="hero-stat-card reveal-scale" style="--delay: 0.8s">
+                <div class="stat-number" data-count="36">0</div>
+                <div class="stat-label">QE Engineers</div>
+                <div class="stat-bar"><span style="--width: 75%"></span></div>
+            </div>
+            <div class="hero-stat-card reveal-scale" style="--delay: 0.9s">
+                <div class="stat-number" data-count="22">0</div>
+                <div class="stat-label">AI Hours Saved</div>
+                <div class="stat-bar"><span style="--width: 65%"></span></div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="section overview-section" id="overview">
+        <div class="section-header">
+            <span class="section-number">01</span>
+            <h2 class="section-title reveal-up">Sprint Overview</h2>
+            <p class="section-subtitle reveal-up" style="--delay: 0.1s">Key metrics and highlights from this sprint cycle</p>
+        </div>
+
+        <div class="overview-carousel-wrapper">
+            <button class="overview-arrow prev" id="overviewPrev">
+                <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            
+            <div class="overview-carousel" id="overviewCarousel">
+                <div class="overview-carousel-inner" id="overviewInner">
+                <div class="overview-card active" data-index="0">
+                    <div class="card-header">
+                        <span class="card-icon">🏆</span>
+                        <h3>Sprint Highlights</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="highlights-list">
+                            <div class="highlight-item">
+                                <span class="highlight-check">✓</span>
+                                <span>All AI tool pilots completed and evaluated</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-check">✓</span>
+                                <span>Core Services tested 58 items - new record!</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-check">✓</span>
+                                <span>WFO kicked off 6 new project initiatives</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-check">✓</span>
+                                <span>Project 870 Phase 1 Web at 100% automation</span>
+                            </div>
+                            <div class="highlight-item new">
+                                <span class="highlight-check">🆕</span>
+                                <span>Welcome Fabrizio to the QCOE team!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overview-card" data-index="1">
+                    <div class="card-header">
+                        <span class="card-icon">📊</span>
+                        <h3>Automation Coverage</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="donut-chart">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="donut-ring" cx="50" cy="50" r="40"/>
+                                <circle class="donut-segment completed" cx="50" cy="50" r="40" 
+                                    stroke-dasharray="87.96 163.36" stroke-dashoffset="0"/>
+                                <circle class="donut-segment in-progress" cx="50" cy="50" r="40" 
+                                    stroke-dasharray="50.26 201.06" stroke-dashoffset="-87.96"/>
+                                <circle class="donut-segment blocked" cx="50" cy="50" r="40" 
+                                    stroke-dasharray="25.13 226.19" stroke-dashoffset="-138.22"/>
+                            </svg>
+                            <div class="donut-center">
+                                <span class="donut-value">78%</span>
+                                <span class="donut-label">Avg</span>
+                            </div>
+                        </div>
+                        <p class="coverage-subtitle">Apps automation status across all teams</p>
+                        <div class="donut-legend">
+                            <span class="legend-item"><i class="completed"></i> 14 Completed</span>
+                            <span class="legend-item"><i class="in-progress"></i> 12 In Progress</span>
+                            <span class="legend-item"><i class="blocked"></i> 3 Blocked</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overview-card" data-index="2">
+                    <div class="card-header">
+                        <span class="card-icon">🤖</span>
+                        <h3>AI Adoption</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="adoption-meter">
+                            <div class="meter-fill" style="--fill: 100%">
+                                <span class="meter-value">100%</span>
+                            </div>
+                        </div>
+                        <p class="adoption-text">All 7 teams actively using AI tools</p>
+                        <div class="tool-tags">
+                            <span class="tool-tag">Tachyon GPT</span>
+                            <span class="tool-tag">Copilot</span>
+                            <span class="tool-tag">XTforge AI</span>
+                            <span class="tool-tag">TestGennie</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <button class="overview-arrow next" id="overviewNext">
+                <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+        </div>
+        
+        <div class="overview-indicators">
+            <div class="overview-dots" id="overviewDots">
+                <button class="overview-dot active" data-index="0"></button>
+                <button class="overview-dot" data-index="1"></button>
+                <button class="overview-dot" data-index="2"></button>
+            </div>
+            <div class="overview-autoplay" id="overviewAutoplay">
+                <div class="overview-autoplay-bar"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teams Section -->
+    <section class="section teams-section" id="teams">
+        <div class="section-header">
+            <span class="section-number">02</span>
+            <h2 class="section-title reveal-up">Team Reports</h2>
+            <p class="section-subtitle reveal-up" style="--delay: 0.1s">Detailed bi-weekly updates from all QE teams</p>
+        </div>
+
+        <div class="teams-filter reveal-up" style="--delay: 0.2s">
+            <button class="filter-chip active" data-filter="all">All Teams</button>
+            <button class="filter-chip" data-filter="tdd">Following TDD</button>
+            <button class="filter-chip" data-filter="mvp">Has MVP</button>
+            <button class="filter-chip" data-filter="ai">High AI Usage</button>
+        </div>
+
+        <div class="teams-carousel" id="teamsCarousel">
+            <!-- Teams will be injected by JS -->
+        </div>
+
+        <div class="carousel-nav">
+            <button class="carousel-arrow prev" id="teamsPrev">
+                <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="carousel-progress">
+                <div class="progress-bar" id="teamsProgress"></div>
+            </div>
+            <button class="carousel-arrow next" id="teamsNext">
+                <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Automation Section -->
+    <section class="section automation-section" id="automation">
+        <div class="section-header">
+            <span class="section-number">03</span>
+            <h2 class="section-title reveal-up">Automation Coverage</h2>
+            <p class="section-subtitle reveal-up" style="--delay: 0.1s">Track automation progress across all applications</p>
+        </div>
+
+        <div class="automation-stats reveal-up" style="--delay: 0.2s">
+            <div class="auto-stat">
+                <div class="auto-stat-icon completed">✓</div>
+                <div class="auto-stat-value">14</div>
+                <div class="auto-stat-label">Completed</div>
+            </div>
+            <div class="auto-stat">
+                <div class="auto-stat-icon in-progress">◐</div>
+                <div class="auto-stat-value">12</div>
+                <div class="auto-stat-label">In Progress</div>
+            </div>
+            <div class="auto-stat">
+                <div class="auto-stat-icon blocked">⊘</div>
+                <div class="auto-stat-value">3</div>
+                <div class="auto-stat-label">Blocked</div>
+            </div>
+            <div class="auto-stat">
+                <div class="auto-stat-icon not-started">○</div>
+                <div class="auto-stat-value">7</div>
+                <div class="auto-stat-label">Not Started</div>
+            </div>
+        </div>
+
+        <div class="automation-table-wrapper reveal-up" style="--delay: 0.3s">
+            <div class="table-scroll">
+                <table class="automation-table" id="automationTable">
+                    <!-- Injected by JS -->
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Impact Section -->
+    <section class="section ai-section" id="ai-impact">
+        <div class="ai-bg">
+            <div class="neural-network"></div>
+        </div>
+        <div class="section-header">
+            <span class="section-number">04</span>
+            <h2 class="section-title reveal-up">AI Impact</h2>
+            <p class="section-subtitle reveal-up" style="--delay: 0.1s">Measuring productivity gains from AI adoption</p>
+        </div>
+
+        <div class="ai-hero-stat reveal-scale" style="--delay: 0.2s">
+            <div class="ai-value">
+                <span class="ai-number" data-count="22.5">0</span>
+                <span class="ai-unit">hours</span>
+            </div>
+            <div class="ai-label">Total Time Saved This Sprint</div>
+            <div class="ai-sublabel">Across all 7 teams using AI tools</div>
+        </div>
+
+        <div class="ai-tools-grid" id="aiToolsGrid">
+            <!-- Injected by JS -->
+        </div>
+
+        <div class="ai-by-team reveal-up" style="--delay: 0.4s">
+            <h3>Time Saved by Team</h3>
+            <div class="team-bars" id="teamBars">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- MVP Spotlight -->
+    <section class="section mvp-section" id="mvp">
+        <div class="mvp-bg">
+            <div class="trophy-glow"></div>
+        </div>
+        <div class="section-header">
+            <span class="section-number">05</span>
+            <h2 class="section-title reveal-up">MVP Spotlight</h2>
+            <p class="section-subtitle reveal-up" style="--delay: 0.1s">Celebrating outstanding contributions from each team</p>
+        </div>
+
+        <div class="mvp-grid" id="mvpGrid">
+            <div class="mvp-card has-mvp">
+                <div class="emoji-rain">
+                    <span class="emoji">🎉</span>
+                    <span class="emoji">👏</span>
+                    <span class="emoji">🥳</span>
+                    <span class="emoji">⭐</span>
+                    <span class="emoji">🎊</span>
+                    <span class="emoji">💪</span>
+                    <span class="emoji">🔥</span>
+                    <span class="emoji">✨</span>
+                </div>
+                <div class="mvp-trophy">🏆</div>
+                <div class="mvp-team-badge">ROBO</div>
+                <h3 class="mvp-name">Entire ROBO Team</h3>
+                <p class="mvp-reason">All team members demonstrated exceptional collaboration and dedication to close the Performance Feature</p>
+            </div>
+            <div class="mvp-card has-mvp">
+                <div class="emoji-rain">
+                    <span class="emoji">🎉</span>
+                    <span class="emoji">👏</span>
+                    <span class="emoji">🥳</span>
+                    <span class="emoji">⭐</span>
+                    <span class="emoji">🎊</span>
+                    <span class="emoji">💪</span>
+                    <span class="emoji">🔥</span>
+                    <span class="emoji">✨</span>
+                </div>
+                <div class="mvp-trophy">🏆</div>
+                <div class="mvp-team-badge">WL-IBD</div>
+                <h3 class="mvp-name">Carlos Baltazar & David Alvarado</h3>
+                <p class="mvp-reason">Worked overtime to complete critical releases on time</p>
+            </div>
+            <div class="mvp-card has-mvp">
+                <div class="emoji-rain">
+                    <span class="emoji">🎉</span>
+                    <span class="emoji">👏</span>
+                    <span class="emoji">🥳</span>
+                    <span class="emoji">⭐</span>
+                    <span class="emoji">🎊</span>
+                    <span class="emoji">💪</span>
+                    <span class="emoji">🔥</span>
+                    <span class="emoji">✨</span>
+                </div>
+                <div class="mvp-trophy">🏆</div>
+                <div class="mvp-team-badge">WFO-OutSystems</div>
+                <h3 class="mvp-name">OS QE Team</h3>
+                <p class="mvp-reason">Exceptional delivery across multiple project kickoffs</p>
+            </div>
+            <div class="mvp-card no-mvp">
+                <div class="emoji-rain sad">
+                    <span class="emoji">😢</span>
+                    <span class="emoji">😔</span>
+                    <span class="emoji">💔</span>
+                    <span class="emoji">😿</span>
+                    <span class="emoji">🥺</span>
+                    <span class="emoji">😭</span>
+                    <span class="emoji">💧</span>
+                    <span class="emoji">😞</span>
+                </div>
+                <div class="mvp-trophy">🎖️</div>
+                <div class="mvp-team-badge">UE-Borrow</div>
+                <h3 class="mvp-name">No MVP this sprint</h3>
+                <p class="mvp-reason">Next time champs! 💪</p>
+            </div>
+            <div class="mvp-card no-mvp">
+                <div class="emoji-rain sad">
+                    <span class="emoji">😢</span>
+                    <span class="emoji">😔</span>
+                    <span class="emoji">💔</span>
+                    <span class="emoji">😿</span>
+                    <span class="emoji">🥺</span>
+                    <span class="emoji">😭</span>
+                    <span class="emoji">💧</span>
+                    <span class="emoji">😞</span>
+                </div>
+                <div class="mvp-trophy">🎖️</div>
+                <div class="mvp-team-badge">QCOE</div>
+                <h3 class="mvp-name">No MVP this sprint</h3>
+                <p class="mvp-reason">Next time champs! 💪</p>
+            </div>
+            <div class="mvp-card no-mvp">
+                <div class="emoji-rain sad">
+                    <span class="emoji">😢</span>
+                    <span class="emoji">😔</span>
+                    <span class="emoji">💔</span>
+                    <span class="emoji">😿</span>
+                    <span class="emoji">🥺</span>
+                    <span class="emoji">😭</span>
+                    <span class="emoji">💧</span>
+                    <span class="emoji">😞</span>
+                </div>
+                <div class="mvp-trophy">🎖️</div>
+                <div class="mvp-team-badge">Plan / Avengers</div>
+                <h3 class="mvp-name">No MVP this sprint</h3>
+                <p class="mvp-reason">Next time champs! 💪</p>
+            </div>
+            <div class="mvp-card no-mvp">
+                <div class="emoji-rain sad">
+                    <span class="emoji">😢</span>
+                    <span class="emoji">😔</span>
+                    <span class="emoji">💔</span>
+                    <span class="emoji">😿</span>
+                    <span class="emoji">🥺</span>
+                    <span class="emoji">😭</span>
+                    <span class="emoji">💧</span>
+                    <span class="emoji">😞</span>
+                </div>
+                <div class="mvp-trophy">🎖️</div>
+                <div class="mvp-team-badge">Core Services</div>
+                <h3 class="mvp-name">No MVP this sprint</h3>
+                <p class="mvp-reason">Next time champs! 💪</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <img src="https://management.org/wp-content/uploads/2022/02/Axos-logo.png" alt="Axos" class="footer-logo-img">
+                    <span>Axos Org Hub</span>
+                </div>
+                <p>Driving quality excellence through innovation and collaboration at Axos Bank</p>
+            </div>
+            <div class="footer-links">
+                <a href="#overview">Overview</a>
+                <a href="#teams">Teams</a>
+                <a href="#automation">Automation</a>
+                <a href="#ai-impact">AI Impact</a>
+                <a href="#mvp">MVP Spotlight</a>
+            </div>
+            <div class="footer-meta">
+                <span>Dec 15 - Jan 09, 2026</span>
+            </div>
+        </div>
+        <div class="footer-signature">
+            <div class="signature-line"></div>
+            <div class="signature-content">
+                <span class="signature-icon">🧠</span>
+                <span class="signature-plus">+</span>
+                <span class="signature-icon">🤖</span>
+            </div>
+            <p class="signature-text">
+                Developed by the <strong>QCOE Team</strong><br>
+                <span class="signature-tagline">Human Intelligence + AI Effectiveness = Quality Excellence</span>
+            </p>
+            <div class="signature-line"></div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Axos Bank Quality Center of Excellence</span>
+        </div>
+    </footer>
+
+    <!-- Team Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="team-modal" id="teamModal">
+        <button class="modal-close" id="modalClose">
+            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="modal-content" id="modalContent">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
