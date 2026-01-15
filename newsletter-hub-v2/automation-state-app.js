@@ -17,8 +17,101 @@ document.addEventListener('DOMContentLoaded', () => {
     initFullscreenHandlers();
     injectDetailModal();
     injectAnalyticsModal();
+    initChartInteractions();
     console.log('✅ Ready!');
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CHART LINE TOGGLE & POINT SELECTION INTERACTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initChartInteractions() {
+    // Use event delegation for toggle buttons
+    document.addEventListener('click', (e) => {
+        // Handle legend toggle buttons
+        const toggleBtn = e.target.closest('.legend-toggle');
+        if (toggleBtn) {
+            handleLegendToggle(toggleBtn);
+            return;
+        }
+        
+        // Handle data point clicks
+        const pointGroup = e.target.closest('.data-point-group');
+        if (pointGroup && !pointGroup.classList.contains('points-hidden')) {
+            handlePointClick(pointGroup);
+            return;
+        }
+        
+        // Click elsewhere on chart - deselect all points
+        const chartContainer = e.target.closest('.velocity-line-chart-container');
+        if (chartContainer) {
+            const svg = chartContainer.querySelector('svg');
+            if (svg) {
+                svg.querySelectorAll('.data-point-group.selected').forEach(p => {
+                    p.classList.remove('selected');
+                });
+            }
+        }
+    });
+}
+
+function handleLegendToggle(toggleBtn) {
+    const lineYear = toggleBtn.dataset.line;
+    
+    // Toggle the button state
+    toggleBtn.classList.toggle('active');
+    const isActive = toggleBtn.classList.contains('active');
+    
+    // Find the chart container
+    const chartContainer = toggleBtn.closest('.velocity-line-chart-container');
+    if (!chartContainer) return;
+    
+    const svg = chartContainer.querySelector('svg');
+    if (!svg) return;
+    
+    // Toggle the line visibility
+    const line = svg.querySelector(`.line-${lineYear}`);
+    if (line) {
+        if (isActive) {
+            line.classList.remove('line-hidden');
+            line.classList.add('line-visible');
+        } else {
+            line.classList.remove('line-visible');
+            line.classList.add('line-hidden');
+        }
+    }
+    
+    // Toggle the data points visibility
+    const points = svg.querySelectorAll(`.data-point-group-${lineYear}`);
+    points.forEach(point => {
+        if (isActive) {
+            point.classList.remove('points-hidden');
+            point.classList.add('points-visible');
+        } else {
+            point.classList.remove('points-visible');
+            point.classList.add('points-hidden');
+            point.classList.remove('selected'); // Deselect if hidden
+        }
+    });
+}
+
+function handlePointClick(pointGroup) {
+    const svg = pointGroup.closest('svg');
+    if (!svg) return;
+    
+    // Check if this point is already selected
+    const wasSelected = pointGroup.classList.contains('selected');
+    
+    // Deselect all points in the same chart
+    svg.querySelectorAll('.data-point-group.selected').forEach(p => {
+        p.classList.remove('selected');
+    });
+    
+    // If it wasn't selected, select it now
+    if (!wasSelected) {
+        pointGroup.classList.add('selected');
+    }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FONT SIZE CONTROL
@@ -677,9 +770,9 @@ function renderAnimatedLineChart(velocityData) {
             const labelY = year === '2024' ? y - 18 : y + 28; // Position labels above for 2024, below for 2025
             const isEndpoint = i === 0 || i === data.length - 1;
             return `
-                <g class="data-point-group ${isEndpoint ? 'show-label' : ''}" style="animation-delay: ${delay}s">
+                <g class="data-point-group data-point-group-${year} ${isEndpoint ? 'show-label' : ''}" style="animation-delay: ${delay}s" data-month="${d.month}" data-value="${d.value}" data-year="${year}">
                     <rect class="label-bg" x="${x - 28}" y="${labelY - 12}" width="56" height="18" rx="4" fill="rgba(0,0,0,0.85)"/>
-                    <circle class="data-point data-point-${year}" cx="${x}" cy="${y}" r="5" style="animation-delay: ${delay}s"/>
+                    <circle class="data-point data-point-${year}" cx="${x}" cy="${y}" r="6" style="animation-delay: ${delay}s"/>
                     <text class="data-label data-label-${year}" x="${x}" y="${labelY}" text-anchor="middle" style="animation-delay: ${delay}s">${d.value.toLocaleString()}</text>
                 </g>
             `;
@@ -727,17 +820,19 @@ function renderAnimatedLineChart(velocityData) {
             </svg>
             
             <!-- Legend -->
-            <div class="chart-legend-bottom">
-                <div class="legend-item-chart">
+            <div class="chart-legend-bottom chart-toggles" data-chart="velocity">
+                <button class="legend-toggle active" data-line="2024" data-chart="velocity">
                     <span class="legend-line legend-2024"></span>
                     <span>2024</span>
-                </div>
-                <div class="legend-item-chart">
+                    <span class="toggle-indicator">✓</span>
+                </button>
+                <button class="legend-toggle active" data-line="2025" data-chart="velocity">
                     <span class="legend-line legend-2025"></span>
                     <span>2025</span>
-                </div>
+                    <span class="toggle-indicator">✓</span>
+                </button>
             </div>
-            <div class="chart-hint">💡 Hover over any point to see its value</div>
+            <div class="chart-hint">💡 Toggle lines with legend buttons • Click a point to lock it • Click elsewhere to deselect</div>
         </div>
     `;
 }
@@ -799,9 +894,9 @@ function renderAnimatedBugLineChart(bugData) {
             const labelY = y + labelOffset;
             const isEndpoint = i === 0 || i === data.length - 1;
             return `
-                <g class="data-point-group ${isEndpoint ? 'show-label' : ''}" style="animation-delay: ${delay}s">
+                <g class="data-point-group data-point-group-${year} ${isEndpoint ? 'show-label' : ''}" style="animation-delay: ${delay}s" data-month="${d.month}" data-value="${d.value}" data-year="${year}">
                     <rect class="label-bg" x="${x - 22}" y="${labelY - 12}" width="44" height="18" rx="4" fill="rgba(0,0,0,0.85)"/>
-                    <circle class="data-point data-point-${year}" cx="${x}" cy="${y}" r="5" style="animation-delay: ${delay}s"/>
+                    <circle class="data-point data-point-${year}" cx="${x}" cy="${y}" r="6" style="animation-delay: ${delay}s"/>
                     <text class="data-label data-label-${year}" x="${x}" y="${labelY}" text-anchor="middle" style="animation-delay: ${delay}s">${d.value}</text>
                 </g>
             `;
@@ -857,23 +952,26 @@ function renderAnimatedBugLineChart(bugData) {
             </svg>
             
             <!-- Legend -->
-            <div class="chart-legend-bottom">
-                <div class="legend-item-chart">
+            <div class="chart-legend-bottom chart-toggles" data-chart="bugs">
+                <button class="legend-toggle active" data-line="2024" data-chart="bugs">
                     <span class="legend-line legend-2024"></span>
                     <span>2024</span>
-                </div>
-                <div class="legend-item-chart">
+                    <span class="toggle-indicator">✓</span>
+                </button>
+                <button class="legend-toggle active" data-line="2025" data-chart="bugs">
                     <span class="legend-line legend-2025"></span>
                     <span>2025</span>
-                </div>
+                    <span class="toggle-indicator">✓</span>
+                </button>
                 ${dataAPM ? `
-                    <div class="legend-item-chart">
+                    <button class="legend-toggle active" data-line="apm" data-chart="bugs">
                         <span class="legend-line legend-apm"></span>
                         <span>APM</span>
-                    </div>
+                        <span class="toggle-indicator">✓</span>
+                    </button>
                 ` : ''}
             </div>
-            <div class="chart-hint">💡 Hover over any point to see its value</div>
+            <div class="chart-hint">💡 Toggle lines with legend buttons • Click a point to lock it • Click elsewhere to deselect</div>
         </div>
     `;
 }

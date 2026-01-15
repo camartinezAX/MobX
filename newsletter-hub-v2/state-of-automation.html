@@ -2499,11 +2499,13 @@
         /* Hover effects for data points */
         .data-point-group {
             cursor: pointer;
+            transition: opacity 0.3s ease;
         }
         
         .data-point-group:hover .data-point {
-            r: 9;
+            r: 10;
             filter: drop-shadow(0 0 12px currentColor);
+            transition: all 0.15s ease-out;
         }
         
         .data-point-group:hover .data-label {
@@ -2514,6 +2516,149 @@
         
         .data-point-group:hover .label-bg {
             opacity: 1;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════
+           LINE TOGGLE BUTTONS
+           ═══════════════════════════════════════════════════════════════════ */
+        
+        .chart-toggles {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .legend-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .legend-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .legend-toggle.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .legend-toggle:not(.active) {
+            opacity: 0.5;
+        }
+        
+        .legend-toggle:not(.active) .legend-line {
+            opacity: 0.3;
+        }
+        
+        .toggle-indicator {
+            font-size: 11px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .legend-toggle.active .toggle-indicator {
+            opacity: 1;
+            color: #22c55e;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════
+           HIDDEN/VISIBLE LINE STATES
+           ═══════════════════════════════════════════════════════════════════ */
+        
+        .velocity-line {
+            transition: opacity 0.4s ease, stroke-width 0.3s ease;
+        }
+        
+        .velocity-line.line-hidden {
+            opacity: 0.15 !important;
+            stroke-width: 1.5 !important;
+        }
+        
+        .velocity-line.line-visible {
+            opacity: 1;
+            stroke-width: 3;
+        }
+        
+        /* Hidden data points - faded and non-interactive */
+        .data-point-group.points-hidden {
+            opacity: 0.15 !important;
+            pointer-events: none !important;
+        }
+        
+        .data-point-group.points-hidden .data-point {
+            r: 3 !important;
+        }
+        
+        .data-point-group.points-hidden .data-label,
+        .data-point-group.points-hidden .label-bg {
+            opacity: 0 !important;
+        }
+        
+        /* Visible data points - full opacity and interactive */
+        .data-point-group.points-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* ═══════════════════════════════════════════════════════════════════
+           SELECTED POINT STATE (click to lock)
+           ═══════════════════════════════════════════════════════════════════ */
+        
+        .data-point-group.selected .data-point {
+            r: 10 !important;
+            filter: drop-shadow(0 0 15px currentColor);
+            animation: pulse-point 1.5s ease-in-out infinite;
+        }
+        
+        .data-point-group.selected .label-bg {
+            opacity: 1 !important;
+        }
+        
+        .data-point-group.selected .data-label {
+            opacity: 1 !important;
+            font-weight: 700;
+        }
+        
+        /* Year-specific selected colors */
+        .data-point-group[data-year="2024"].selected .label-bg {
+            fill: rgba(30, 64, 175, 0.95) !important;
+        }
+        
+        .data-point-group[data-year="2024"].selected .data-label {
+            fill: #ffffff !important;
+        }
+        
+        .data-point-group[data-year="2025"].selected .label-bg {
+            fill: rgba(180, 120, 0, 0.95) !important;
+        }
+        
+        .data-point-group[data-year="2025"].selected .data-label {
+            fill: #ffffff !important;
+        }
+        
+        .data-point-group[data-year="apm"].selected .label-bg {
+            fill: rgba(180, 50, 50, 0.95) !important;
+        }
+        
+        .data-point-group[data-year="apm"].selected .data-label {
+            fill: #ffffff !important;
+        }
+        
+        @keyframes pulse-point {
+            0%, 100% { filter: drop-shadow(0 0 10px currentColor); }
+            50% { filter: drop-shadow(0 0 20px currentColor); }
         }
         
         /* Tooltip-style label on hover */
