@@ -18,8 +18,23 @@ document.addEventListener('DOMContentLoaded', () => {
     injectDetailModal();
     injectAnalyticsModal();
     initChartInteractions();
+    initLogoHome();
     console.log('✅ Ready!');
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOGO HOME NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initLogoHome() {
+    const logo = document.getElementById('logoHome');
+    if (!logo) return;
+    
+    logo.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHART LINE TOGGLE & POINT SELECTION INTERACTIONS
