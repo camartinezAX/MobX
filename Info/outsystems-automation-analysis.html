@@ -1220,6 +1220,214 @@
         .demo-note a:hover {
             text-decoration: underline;
         }
+        
+        /* Architecture Toggle Styles */
+        .arch-toggle-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .arch-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .arch-toggle-btn:hover {
+            border-color: var(--axos-orange);
+            color: var(--text-primary);
+        }
+        
+        .arch-toggle-btn.active {
+            background: linear-gradient(135deg, var(--axos-navy) 0%, var(--axos-navy-dark) 100%);
+            border-color: var(--axos-orange);
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px rgba(250, 167, 74, 0.2);
+        }
+        
+        .arch-option, .folder-option, .code-option {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .arch-option.active, .folder-option.active, .code-option.active {
+            display: block;
+        }
+        
+        /* Equal height code blocks in separate view - ROW based */
+        .code-row-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .code-row-grid .code-demo {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .code-row-grid .code-body {
+            flex: 1;
+        }
+        
+        @media (max-width: 900px) {
+            .code-row-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Pros/Cons Section */
+        .pros-cons-section {
+            margin-top: 60px;
+        }
+        
+        .pros-cons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 900px) {
+            .pros-cons-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #folder-separate > div {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
+        .pros-cons-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+        
+        .pros-cons-card.combined {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .pros-cons-card.separate {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .pros-cons-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .pros-cons-card.combined:hover {
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.15);
+        }
+        
+        .pros-cons-card.separate:hover {
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
+        }
+        
+        .pros-cons-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .pros-cons-header .icon {
+            font-size: 28px;
+        }
+        
+        .pros-cons-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .pros-cons-header.combined h3 {
+            color: var(--info);
+        }
+        
+        .pros-cons-header.separate h3 {
+            color: var(--success);
+        }
+        
+        .pros-list, .cons-list {
+            margin-bottom: 20px;
+        }
+        
+        .pros-list h4, .cons-list h4 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .pros-list h4 {
+            color: var(--success);
+        }
+        
+        .cons-list h4 {
+            color: var(--error);
+        }
+        
+        .pros-list ul, .cons-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .pros-list li, .cons-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        
+        .pros-list li::before {
+            content: '✅';
+            flex-shrink: 0;
+        }
+        
+        .cons-list li::before {
+            content: '⚠️';
+            flex-shrink: 0;
+        }
+        
+        .verdict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .verdict-badge.recommended {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+        
+        .verdict-badge.alternative {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--info);
+        }
     </style>
 </head>
 <body>
@@ -1452,100 +1660,163 @@
                 </div>
             </div>
             
+            <!-- Recommended Approach -->
+            <div class="fade-in-section" style="margin-bottom: 60px;">
+                <div class="section-header">
+                    <h2>Recommended Approach</h2>
+                    <p>How should we organize the automation projects?</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div class="bottom-line-card" style="border: 2px solid rgba(59, 130, 246, 0.3); padding: 28px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <span style="font-size: 28px;">🔗</span>
+                            <h3 style="font-size: 20px; margin: 0;">Combined Monorepo</h3>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">
+                            One repository containing both web and mobile automation.
+                        </p>
+                        <div style="font-size: 13px; color: var(--text-muted);">
+                            <div style="margin-bottom: 6px;">✅ Single codebase to manage</div>
+                            <div style="margin-bottom: 6px;">⚠️ Risk of messy conditional logic</div>
+                            <div>⚠️ Complex CI/CD pipelines</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bottom-line-card" style="border: 2px solid var(--success); padding: 28px; background: linear-gradient(135deg, var(--bg-card) 0%, rgba(16, 185, 129, 0.08) 100%);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <span style="font-size: 28px;">📦</span>
+                            <h3 style="font-size: 20px; margin: 0; color: var(--success);">Separate Repos</h3>
+                            <span style="background: var(--success); color: var(--bg-primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">RECOMMENDED</span>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">
+                            Independent repos for web (OLB 3.0) and mobile (UDB 3.0) automation.
+                        </p>
+                        <div style="font-size: 13px; color: var(--text-muted);">
+                            <div style="margin-bottom: 6px;">✅ Clean separation of concerns</div>
+                            <div style="margin-bottom: 6px;">✅ Teams work independently</div>
+                            <div style="margin-bottom: 6px;">✅ Simple, focused CI/CD</div>
+                            <div>✅ Locators synced via shared package</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-note" style="margin-top: 24px; border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
+                    <div class="demo-note-title" style="color: var(--success);">
+                        <span>💡</span> Why Separate?
+                    </div>
+                    <p style="margin: 0;">
+                        While locators are shared, <strong>test flows are fundamentally different</strong>. Mobile has biometrics, gestures, 
+                        and app lifecycle. Web has page loads, cookie consent, and browser handling. Combining them leads to 
+                        complex "if mobile... else web..." conditions that are hard to maintain. <strong>Keep it clean — keep it separate.</strong>
+                    </p>
+                </div>
+            </div>
+            
             <!-- Effort Comparison -->
             <div class="effort-section fade-in-section">
                 <div class="section-header">
                     <h2>Effort Estimate</h2>
-                    <p>How much time this discovery saves us</p>
+                    <p>Building both web (OLB 3.0) and mobile (UDB 3.0) automation from scratch</p>
                 </div>
                 
-                <div class="effort-comparison">
-                    <div class="effort-card before">
-                        <div class="label">Without Shared Locators</div>
-                        <div class="weeks">8-12</div>
-                        <div class="suffix">weeks</div>
+                <!-- Effort Matrix -->
+                <div class="effort-matrix">
+                    <table class="comparison-table" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Approach</th>
+                                <th>🧑‍💻 Manual Development</th>
+                                <th style="background: linear-gradient(135deg, rgba(250, 167, 74, 0.2) 0%, rgba(250, 167, 74, 0.1) 100%);">
+                                    🤖 With Cursor AI
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align: left;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 20px;">🔗</span>
+                                        <div>
+                                            <strong>Combined Monorepo</strong>
+                                            <div style="font-size: 12px; color: var(--text-muted);">Single repo, shared code</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 28px; font-weight: 800; color: var(--text-secondary);">8-10</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);">weeks</div>
+                                </td>
+                                <td style="background: rgba(250, 167, 74, 0.05);">
+                                    <div style="font-size: 28px; font-weight: 800; color: var(--axos-orange);">5-6</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);">weeks</div>
+                                </td>
+                            </tr>
+                            <tr style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%);">
+                                <td style="text-align: left;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 20px;">📦</span>
+                                        <div>
+                                            <strong style="color: var(--success);">Separate Repos</strong>
+                                            <span style="background: var(--success); color: var(--bg-primary); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 8px;">RECOMMENDED</span>
+                                            <div style="font-size: 12px; color: var(--text-muted);">Independent projects, parallel work</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 28px; font-weight: 800; color: var(--text-secondary);">8-10</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);">weeks (4-5 each, parallel)</div>
+                                </td>
+                                <td style="background: rgba(16, 185, 129, 0.1);">
+                                    <div style="font-size: 28px; font-weight: 800; color: var(--success);">3-4</div>
+                                    <div style="font-size: 13px; color: var(--text-muted);">weeks (parallel)</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Breakdown Cards -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px;">
+                    <div class="bottom-line-card" style="padding: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                            <span style="font-size: 24px;">🌐</span>
+                            <strong style="font-size: 16px;">Web (OLB 3.0) — Playwright</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                            <span>Manual:</span>
+                            <span style="font-weight: 600;">4-5 weeks</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--axos-orange);">
+                            <span>With Cursor AI:</span>
+                            <span style="font-weight: 600;">2-3 weeks</span>
+                        </div>
                     </div>
-                    <div class="effort-card after">
-                        <div class="label">With Shared Locators</div>
-                        <div class="weeks">6-8</div>
-                        <div class="suffix">weeks</div>
+                    <div class="bottom-line-card" style="padding: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                            <span style="font-size: 24px;">📱</span>
+                            <strong style="font-size: 16px;">Mobile (UDB 3.0) — Appium</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                            <span>Manual:</span>
+                            <span style="font-weight: 600;">4-5 weeks</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--axos-orange);">
+                            <span>With Cursor AI:</span>
+                            <span style="font-weight: 600;">2-3 weeks</span>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                            * Existing framework can be adapted
+                        </div>
                     </div>
                 </div>
                 
-                <div style="text-align: center;">
-                    <div class="savings-badge">
-                        <span>📉</span> 30-40% Effort Reduction (Locators Shared, Flows Separate)
+                <div style="text-align: center; margin-top: 24px;">
+                    <div class="savings-badge" style="background: rgba(250, 167, 74, 0.15); border-color: rgba(250, 167, 74, 0.3); color: var(--axos-orange);">
+                        <span>🤖</span> ~50% Faster with Cursor AI
                     </div>
-                </div>
-            </div>
-            
-            <!-- Next Steps -->
-            <div class="timeline-section fade-in-section">
-                <div class="section-header">
-                    <h2>Recommended Next Steps</h2>
-                    <p>The path forward for implementation</p>
-                </div>
-                
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-number">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-info">
-                                <h4>Create Shared Locator Library</h4>
-                                <p>Build the unified locator files for OutSystems elements</p>
-                            </div>
-                            <div class="timeline-meta">
-                                <div class="time">Week 1</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-number">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-info">
-                                <h4>Playwright POC for OLB 3.0</h4>
-                                <p>Web automation proof of concept with shared locators</p>
-                            </div>
-                            <div class="timeline-meta">
-                                <div class="time">Week 2-3</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-number">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-info">
-                                <h4>Adapt Mobile Framework for UDB 3.0</h4>
-                                <p>Add WebView context switching, integrate shared locators</p>
-                            </div>
-                            <div class="timeline-meta">
-                                <div class="time">Week 3-4</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-number">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-info">
-                                <h4>CI/CD Integration</h4>
-                                <p>Pipeline setup for both web and mobile test execution</p>
-                            </div>
-                            <div class="timeline-meta">
-                                <div class="time">Week 5</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-number">5</div>
-                        <div class="timeline-content">
-                            <div class="timeline-info">
-                                <h4>Full Suite Migration</h4>
-                                <p>Complete regression suite implementation</p>
-                            </div>
-                            <div class="timeline-meta">
-                                <div class="time">Week 6-8</div>
-                            </div>
-                        </div>
+                    <div class="savings-badge" style="margin-left: 12px;">
+                        <span>⚡</span> Separate Repos = Parallel Development
                     </div>
                 </div>
             </div>
@@ -1569,37 +1840,106 @@
             
             <!-- Architecture -->
             <div class="architecture-diagram fade-in-section">
-                <div class="section-header" style="margin-bottom: 40px;">
-                    <h2 style="font-size: 28px;">🏗️ Recommended Architecture</h2>
+                <div class="section-header" style="margin-bottom: 20px;">
+                    <h2 style="font-size: 28px;">🏗️ Architecture Options</h2>
+                    <p style="margin-top: 10px;">Choose an approach based on team structure and maintenance preferences</p>
                 </div>
                 
-                <div class="arch-flow">
-                    <div class="arch-box">
-                        <div class="icon">💻</div>
-                        <h4>Cursor IDE</h4>
-                        <p>Where all code is written</p>
-                    </div>
-                    
-                    <div class="arch-arrow">⬇️</div>
-                    
-                    <div class="arch-box">
-                        <div class="icon">📁</div>
-                        <h4>Shared Locators</h4>
-                        <p>login.locators.js — Works for both platforms</p>
-                    </div>
-                    
-                    <div class="arch-arrow">⬇️</div>
-                    
-                    <div class="arch-split">
+                <!-- Architecture Toggle -->
+                <div class="arch-toggle-container">
+                    <button class="arch-toggle-btn" id="btn-combined" onclick="showArchitecture('combined')">
+                        <span>🔗</span> Combined Monorepo
+                    </button>
+                    <button class="arch-toggle-btn active" id="btn-separate" onclick="showArchitecture('separate')">
+                        <span>📦</span> Separate Repos
+                    </button>
+                </div>
+                
+                <!-- Combined Architecture -->
+                <div id="arch-combined" class="arch-option">
+                    <div class="arch-flow">
                         <div class="arch-box">
-                            <div class="icon">🌐</div>
-                            <h4>Web (Playwright)</h4>
-                            <p>OLB 3.0 — Browser testing</p>
+                            <div class="icon">💻</div>
+                            <h4>Cursor IDE</h4>
+                            <p>Single workspace for all code</p>
                         </div>
-                        <div class="arch-box">
-                            <div class="icon">📱</div>
-                            <h4>Mobile (Appium)</h4>
-                            <p>UDB 3.0 — Device testing</p>
+                        
+                        <div class="arch-arrow">⬇️</div>
+                        
+                        <div class="arch-box highlight">
+                            <div class="icon">📁</div>
+                            <h4>Shared Locators</h4>
+                            <p>login.locators.js — Works for both platforms</p>
+                        </div>
+                        
+                        <div class="arch-arrow">⬇️</div>
+                        
+                        <div class="arch-split">
+                            <div class="arch-box">
+                                <div class="icon">🌐</div>
+                                <h4>Web (Playwright)</h4>
+                                <p>OLB 3.0 — Browser testing</p>
+                            </div>
+                            <div class="arch-box">
+                                <div class="icon">📱</div>
+                                <h4>Mobile (Appium)</h4>
+                                <p>UDB 3.0 — Device testing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Separate Architecture -->
+                <div id="arch-separate" class="arch-option active">
+                    <div class="arch-flow">
+                        <div class="arch-split" style="margin-bottom: 20px;">
+                            <div style="text-align: center;">
+                                <div class="arch-box" style="border-color: var(--info);">
+                                    <div class="icon">🌐</div>
+                                    <h4>axos-web-automation</h4>
+                                    <p>OLB 3.0 — Playwright</p>
+                                </div>
+                                <div class="arch-arrow">⬇️</div>
+                                <div class="arch-box">
+                                    <div class="icon">📁</div>
+                                    <h4>Web Locators</h4>
+                                    <p>login.locators.ts</p>
+                                </div>
+                                <div class="arch-arrow">⬇️</div>
+                                <div class="arch-box">
+                                    <div class="icon">🧪</div>
+                                    <h4>Web Tests</h4>
+                                    <p>Independent flows</p>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div class="arch-box" style="border-color: var(--success);">
+                                    <div class="icon">📱</div>
+                                    <h4>axos-mobile-automation</h4>
+                                    <p>UDB 3.0 — Appium</p>
+                                </div>
+                                <div class="arch-arrow">⬇️</div>
+                                <div class="arch-box">
+                                    <div class="icon">📁</div>
+                                    <h4>Mobile Locators</h4>
+                                    <p>login.locators.js</p>
+                                </div>
+                                <div class="arch-arrow">⬇️</div>
+                                <div class="arch-box">
+                                    <div class="icon">🧪</div>
+                                    <h4>Mobile Tests</h4>
+                                    <p>Independent flows</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="demo-note" style="margin-top: 20px;">
+                            <div class="demo-note-title">
+                                <span>💡</span> Locator Sync Strategy
+                            </div>
+                            <p>
+                                Locators can still be kept in sync via a <strong>shared npm package</strong> or 
+                                <strong>git submodule</strong>, or simply copy-paste when elements change (they rarely do after initial setup).
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1611,69 +1951,222 @@
                     <h2 style="font-size: 28px;">📝 Code Examples</h2>
                 </div>
                 
-                <h3 style="margin: 40px 0 20px; font-size: 20px;">Shared Locators File</h3>
-                <div class="code-demo">
-                    <div class="code-header">
-                        <div class="code-title">shared/locators/login.locators.js</div>
-                    </div>
-                    <div class="code-body">
+                <!-- Code Examples Toggle -->
+                <div class="arch-toggle-container">
+                    <button class="arch-toggle-btn" id="btn-code-combined" onclick="showCodeExamples('combined')">
+                        <span>🔗</span> Combined Monorepo
+                    </button>
+                    <button class="arch-toggle-btn active" id="btn-code-separate" onclick="showCodeExamples('separate')">
+                        <span>📦</span> Separate Repos
+                    </button>
+                </div>
+                
+                <!-- Combined Code Examples -->
+                <div id="code-combined" class="code-option">
+                    <h3 style="margin: 20px 0 20px; font-size: 20px;">Shared Locators File</h3>
+                    <div class="code-demo">
+                        <div class="code-header">
+                            <div class="code-title">shared/locators/login.locators.js</div>
+                        </div>
+                        <div class="code-body">
 <span class="comment">// Multi-platform locators with smart fallback</span>
 <span class="keyword">module</span>.<span class="property">exports</span> = {
   <span class="comment">// ✅ Same across ALL platforms? Use "any" — one line!</span>
-  <span class="property">username</span>: { <span class="property">any</span>: <span class="string">"//*[@id='Input_UsernameVal']"</span> },
-  <span class="property">password</span>: { <span class="property">any</span>: <span class="string">"//*[@id='Input_Password']"</span> },
+  <span class="property">username</span>: { <span class="property">any</span>: <span class="string">"#Input_UsernameVal"</span> },
+  <span class="property">password</span>: { <span class="property">any</span>: <span class="string">"#Input_Password"</span> },
   
   <span class="comment">// ⚠️ Different per platform? Specify each</span>
   <span class="property">submitButton</span>: {
-    <span class="property">web</span>:     <span class="string">"//*[contains(text(),'Log in')]"</span>,
+    <span class="property">web</span>:     <span class="string">"text=Log in"</span>,
     <span class="property">android</span>: <span class="string">"//*[contains(@text,'Log in')]"</span>,
     <span class="property">ios</span>:     <span class="string">"//*[contains(@label,'Log in')]"</span>
   }
 };
+                        </div>
                     </div>
-                </div>
-                
-                <h3 style="margin: 40px 0 20px; font-size: 20px;">Platform Detection Logic</h3>
-                <div class="code-demo">
-                    <div class="code-header">
-                        <div class="code-title">src/utils/selector.js</div>
-                    </div>
-                    <div class="code-body">
+                    
+                    <h3 style="margin: 40px 0 20px; font-size: 20px;">Platform Detection Utility</h3>
+                    <div class="code-demo">
+                        <div class="code-header">
+                            <div class="code-title">shared/utils/selector.js</div>
+                        </div>
+                        <div class="code-body">
 <span class="comment">// resolve() function handles platform detection automatically</span>
-<span class="keyword">const</span> <span class="variable">pk</span> = <span class="function">platformKey</span>();  <span class="comment">// Returns 'android', 'ios', or 'web'</span>
-<span class="variable">sel</span> = <span class="variable">entry</span>[<span class="variable">pk</span>] || <span class="variable">entry</span>.<span class="property">any</span>;  <span class="comment">// Falls back to 'any' if no platform match</span>
+<span class="keyword">function</span> <span class="function">resolve</span>(<span class="variable">entry</span>) {
+  <span class="keyword">const</span> <span class="variable">pk</span> = <span class="function">platformKey</span>();  <span class="comment">// Returns 'android', 'ios', or 'web'</span>
+  <span class="keyword">return</span> <span class="variable">entry</span>[<span class="variable">pk</span>] || <span class="variable">entry</span>.<span class="property">any</span>;  <span class="comment">// Falls back to 'any' if no platform match</span>
+}
+                        </div>
                     </div>
-                </div>
-                
-                <h3 style="margin: 40px 0 20px; font-size: 20px;">Mobile Test — Clean Usage</h3>
-                <div class="code-demo">
-                    <div class="code-header">
-                        <div class="code-title">mobile/tests/login.spec.js</div>
+                    
+                    <h3 style="margin: 40px 0 20px; font-size: 20px;">Web Test (Playwright)</h3>
+                    <div class="code-demo">
+                        <div class="code-header">
+                            <div class="code-title">web/tests/login.spec.ts</div>
+                        </div>
+                        <div class="code-body">
+<span class="keyword">import</span> { <span class="variable">test</span>, <span class="variable">expect</span> } <span class="keyword">from</span> <span class="string">'@playwright/test'</span>;
+<span class="keyword">import</span> { <span class="variable">resolve</span> } <span class="keyword">from</span> <span class="string">'../../shared/utils/selector'</span>;
+<span class="keyword">import</span> <span class="variable">locators</span> <span class="keyword">from</span> <span class="string">'../../shared/locators/login.locators'</span>;
+
+<span class="function">test.describe</span>(<span class="string">'Login to OLB 3.0'</span>, () => {
+  <span class="function">test</span>(<span class="string">'should login successfully'</span>, <span class="keyword">async</span> ({ <span class="variable">page</span> }) => {
+    <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">goto</span>(<span class="string">'https://axosbank-test.outsystems.app'</span>);
+    
+    <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">locator</span>(<span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">username</span>)).<span class="function">fill</span>(<span class="string">'testuser'</span>);
+    <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">locator</span>(<span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">password</span>)).<span class="function">fill</span>(<span class="string">'password123'</span>);
+    <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">locator</span>(<span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">submitButton</span>)).<span class="function">click</span>();
+  });
+});
+                        </div>
                     </div>
-                    <div class="code-body">
-<span class="keyword">const</span> { <span class="variable">resolve</span> } = <span class="function">require</span>(<span class="string">'../../utils/selector'</span>);
-<span class="keyword">const</span> <span class="variable">locators</span> = <span class="function">require</span>(<span class="string">'../../locators/login.locators'</span>);
+                    
+                    <h3 style="margin: 40px 0 20px; font-size: 20px;">Mobile Test (Appium/WDIO)</h3>
+                    <div class="code-demo">
+                        <div class="code-header">
+                            <div class="code-title">mobile/tests/login.spec.js</div>
+                        </div>
+                        <div class="code-body">
+<span class="keyword">const</span> { <span class="variable">resolve</span> } = <span class="function">require</span>(<span class="string">'../../shared/utils/selector'</span>);
+<span class="keyword">const</span> <span class="variable">locators</span> = <span class="function">require</span>(<span class="string">'../../shared/locators/login.locators'</span>);
 
 <span class="function">describe</span>(<span class="string">'Login to UDB 3.0'</span>, () => {
   <span class="function">it</span>(<span class="string">'should login successfully'</span>, <span class="keyword">async</span> () => {
-    <span class="comment">// resolve() auto-detects platform — no manual selection!</span>
     <span class="keyword">await</span> <span class="function">$</span>(<span class="keyword">await</span> <span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">username</span>)).<span class="function">setValue</span>(<span class="string">'testuser'</span>);
     <span class="keyword">await</span> <span class="function">$</span>(<span class="keyword">await</span> <span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">password</span>)).<span class="function">setValue</span>(<span class="string">'password123'</span>);
     <span class="keyword">await</span> <span class="function">$</span>(<span class="keyword">await</span> <span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">submitButton</span>)).<span class="function">click</span>();
   });
 });
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Separate Repos Code Examples -->
+                <div id="code-separate" class="code-option active">
+                    <!-- Headers Row -->
+                    <div class="code-row-grid" style="margin-bottom: 0;">
+                        <h3 style="margin: 20px 0 20px; font-size: 18px; color: var(--info);">🌐 axos-web-automation</h3>
+                        <h3 style="margin: 20px 0 20px; font-size: 18px; color: var(--success);">📱 axos-mobile-automation</h3>
+                    </div>
+                    
+                    <!-- Row 1: Locators Files -->
+                    <div class="code-row-grid">
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <div class="code-title">src/locators/login.locators.ts</div>
+                            </div>
+                            <div class="code-body">
+<span class="comment">// Simple, web-focused locators</span>
+<span class="keyword">export</span> <span class="keyword">const</span> <span class="variable">loginLocators</span> = {
+  <span class="property">username</span>: <span class="string">'#Input_UsernameVal'</span>,
+  <span class="property">password</span>: <span class="string">'#Input_Password'</span>,
+  <span class="property">submitButton</span>: <span class="string">'text=Log in'</span>,
+};
+                            </div>
+                        </div>
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <div class="code-title">src/locators/login.locators.js</div>
+                            </div>
+                            <div class="code-body">
+<span class="comment">// Platform-specific locators (Android/iOS)</span>
+<span class="keyword">module</span>.<span class="property">exports</span> = {
+  <span class="property">username</span>: {
+    <span class="property">android</span>: <span class="string">"~Input_UsernameVal"</span>,
+    <span class="property">ios</span>: <span class="string">"~Input_UsernameVal"</span>
+  },
+  <span class="property">password</span>: {
+    <span class="property">android</span>: <span class="string">"~Input_Password"</span>,
+    <span class="property">ios</span>: <span class="string">"~Input_Password"</span>
+  },
+  <span class="property">submitButton</span>: {
+    <span class="property">android</span>: <span class="string">"//*[@text='Log in']"</span>,
+    <span class="property">ios</span>: <span class="string">"~Log in"</span>
+  }
+};
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 2: Test/Bizobject Files -->
+                    <div class="code-row-grid" style="margin-top: 20px;">
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <div class="code-title">tests/login.spec.ts</div>
+                            </div>
+                            <div class="code-body">
+<span class="keyword">import</span> { <span class="variable">test</span> } <span class="keyword">from</span> <span class="string">'@playwright/test'</span>;
+<span class="keyword">import</span> { <span class="variable">loc</span> } <span class="keyword">from</span> <span class="string">'../src/locators/login.locators'</span>;
+
+<span class="function">test</span>(<span class="string">'should login successfully'</span>, <span class="keyword">async</span> ({ <span class="variable">page</span> }) => {
+  <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">goto</span>(<span class="string">'https://olb3-test.outsystems.app'</span>);
+  
+  <span class="comment">// Clean — no platform detection needed!</span>
+  <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">locator</span>(<span class="variable">loc</span>.<span class="property">username</span>).<span class="function">fill</span>(<span class="string">'testuser'</span>);
+  <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">locator</span>(<span class="variable">loc</span>.<span class="property">password</span>).<span class="function">fill</span>(<span class="string">'pass123'</span>);
+  <span class="keyword">await</span> <span class="variable">page</span>.<span class="function">locator</span>(<span class="variable">loc</span>.<span class="property">submitButton</span>).<span class="function">click</span>();
+});
+                            </div>
+                        </div>
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <div class="code-title">src/bizobjects/login.js</div>
+                            </div>
+                            <div class="code-body">
+<span class="keyword">const</span> { <span class="variable">resolve</span> } = <span class="function">require</span>(<span class="string">'../utils/selector'</span>);
+<span class="keyword">const</span> <span class="variable">locators</span> = <span class="function">require</span>(<span class="string">'../locators/login.locators'</span>);
+
+<span class="keyword">async function</span> <span class="function">login</span>({ <span class="variable">username</span>, <span class="variable">password</span> }) {
+  <span class="comment">// resolve() picks android/ios automatically</span>
+  <span class="keyword">const</span> <span class="variable">userSel</span> = <span class="keyword">await</span> <span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">username</span>);
+  <span class="keyword">const</span> <span class="variable">passSel</span> = <span class="keyword">await</span> <span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">password</span>);
+  <span class="keyword">const</span> <span class="variable">btnSel</span> = <span class="keyword">await</span> <span class="function">resolve</span>(<span class="variable">locators</span>.<span class="property">submitButton</span>);
+
+  <span class="keyword">await</span> <span class="function">$</span>(<span class="variable">userSel</span>).<span class="function">setValue</span>(<span class="variable">username</span>);
+  <span class="keyword">await</span> <span class="function">$</span>(<span class="variable">passSel</span>).<span class="function">setValue</span>(<span class="variable">password</span>);
+  <span class="keyword">await</span> <span class="function">$</span>(<span class="variable">btnSel</span>).<span class="function">click</span>();
+}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-note" style="margin-top: 24px;">
+                        <div class="demo-note-title">
+                            <span>✅</span> Clean Separation
+                        </div>
+                        <p style="margin: 0;">
+                            Each repo has its own locators and its own <code>resolve()</code> function. 
+                            <strong>No link between repos</strong> — if a locator changes, you update both manually. 
+                            But since OutSystems generates the same element IDs for both platforms, you're essentially 
+                            copying the same ID values (just with different selector syntax).
+                        </p>
                     </div>
                 </div>
             </div>
             
             <!-- Folder Structure -->
             <div class="fade-in-section">
-                <h3 style="margin: 40px 0 20px; font-size: 20px;">📁 Recommended Folder Structure</h3>
-                <div class="code-demo">
-                    <div class="code-header">
-                        <div class="code-title">axos-automation/</div>
-                    </div>
-                    <div class="code-body">
+                <div class="section-header" style="margin-top: 60px;">
+                    <h2 style="font-size: 28px;">📁 Folder Structure</h2>
+                </div>
+                
+                <!-- Folder Structure Toggle -->
+                <div class="arch-toggle-container">
+                    <button class="arch-toggle-btn" id="btn-folder-combined" onclick="showFolderStructure('combined')">
+                        <span>🔗</span> Combined Monorepo
+                    </button>
+                    <button class="arch-toggle-btn active" id="btn-folder-separate" onclick="showFolderStructure('separate')">
+                        <span>📦</span> Separate Repos
+                    </button>
+                </div>
+                
+                <!-- Combined Folder Structure -->
+                <div id="folder-combined" class="folder-option">
+                    <div class="code-demo">
+                        <div class="code-header">
+                            <div class="code-title">axos-automation/</div>
+                        </div>
+                        <div class="code-body">
 <span class="string">📁 axos-automation/</span>
 │
 ├── <span class="string">📁 shared/</span>                     <span class="comment">← SHARED ACROSS BOTH</span>
@@ -1700,6 +2193,69 @@
 │
 ├── package.json                   <span class="comment">← Root scripts</span>
 └── README.md
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Separate Folder Structures -->
+                <div id="folder-separate" class="folder-option active">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <div class="code-title" style="color: var(--info);">🌐 axos-web-automation/</div>
+                            </div>
+                            <div class="code-body">
+<span class="string">📁 axos-web-automation/</span>
+│
+├── <span class="string">📁 src/</span>
+│   ├── 📁 locators/
+│   │   ├── login.locators.ts
+│   │   ├── accounts.locators.ts
+│   │   └── transfers.locators.ts
+│   ├── 📁 pages/
+│   │   ├── LoginPage.ts
+│   │   └── TransfersPage.ts
+│   └── 📁 utils/
+│       └── helpers.ts
+│
+├── <span class="string">📁 tests/</span>
+│   ├── login.spec.ts
+│   ├── transfers.spec.ts
+│   └── accounts.spec.ts
+│
+├── playwright.config.ts
+├── package.json
+└── README.md
+                            </div>
+                        </div>
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <div class="code-title" style="color: var(--success);">📱 axos-mobile-automation/</div>
+                            </div>
+                            <div class="code-body">
+<span class="string">📁 axos-mobile-automation/</span>
+│
+├── <span class="string">📁 src/</span>
+│   ├── 📁 locators/
+│   │   ├── login.locators.js
+│   │   ├── accounts.locators.js
+│   │   └── transfers.locators.js
+│   ├── 📁 screens/
+│   │   ├── LoginScreen.js
+│   │   └── TransfersScreen.js
+│   └── 📁 utils/
+│       └── helpers.js
+│
+├── <span class="string">📁 tests/</span>
+│   ├── login.spec.js
+│   ├── transfers.spec.js
+│   └── biometrics.spec.js  <span class="comment">← Mobile-only!</span>
+│
+├── wdio.conf.js
+├── package.json
+└── README.md
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1784,6 +2340,108 @@
                             <strong>Free & Open Source:</strong> No licensing costs unlike TestIM subscription.
                         </p>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Pros/Cons Comparison -->
+            <div class="pros-cons-section fade-in-section">
+                <div class="section-header">
+                    <h2 style="font-size: 28px;">⚖️ Combined vs Separate — Pros & Cons</h2>
+                    <p>Which approach fits your team best?</p>
+                </div>
+                
+                <div class="pros-cons-grid">
+                    <!-- Combined Monorepo -->
+                    <div class="pros-cons-card combined">
+                        <div class="pros-cons-header combined">
+                            <span class="icon">🔗</span>
+                            <h3>Combined Monorepo</h3>
+                        </div>
+                        
+                        <div class="pros-list">
+                            <h4>Pros</h4>
+                            <ul>
+                                <li>Single repo to clone and manage</li>
+                                <li>Shared locators are truly shared (same files)</li>
+                                <li>One PR can update both platforms</li>
+                                <li>Easier to enforce consistent coding standards</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="cons-list">
+                            <h4>Cons</h4>
+                            <ul>
+                                <li>Risk of "if mobile... else web..." conditionals in shared code</li>
+                                <li>CI/CD pipeline complexity — must handle both platforms</li>
+                                <li>Larger repo size, longer clone times</li>
+                                <li>Changes to one platform can accidentally break the other</li>
+                                <li>Team members may need to understand both frameworks</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="verdict-badge alternative">
+                            <span>📋</span> Good for small teams with full-stack QA
+                        </div>
+                    </div>
+                    
+                    <!-- Separate Repos -->
+                    <div class="pros-cons-card separate">
+                        <div class="pros-cons-header separate">
+                            <span class="icon">📦</span>
+                            <h3>Separate Repos</h3>
+                        </div>
+                        
+                        <div class="pros-list">
+                            <h4>Pros</h4>
+                            <ul>
+                                <li>Clean separation — no platform conditionals in test flows</li>
+                                <li>Independent CI/CD pipelines (simpler)</li>
+                                <li>Teams can work independently without conflicts</li>
+                                <li>Each repo is focused and easier to understand</li>
+                                <li>Mobile-only features (biometrics, gestures) stay isolated</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="cons-list">
+                            <h4>Cons</h4>
+                            <ul>
+                                <li>Locator changes need to be synced manually (or via npm package)</li>
+                                <li>Two repos to maintain, two PRs for shared changes</li>
+                                <li>Potential for locators to drift out of sync</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="verdict-badge recommended">
+                            <span>⭐</span> Recommended for clarity and maintainability
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom Line -->
+                <div class="demo-note" style="margin-top: 30px; border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
+                    <div class="demo-note-title" style="color: var(--success);">
+                        <span>💡</span> Our Recommendation
+                    </div>
+                    <p style="margin-bottom: 12px;">
+                        <strong>Go with Separate Repos.</strong> While sharing locators is valuable, the test flows between 
+                        web and mobile are fundamentally different. Trying to share flow logic leads to messy conditionals like:
+                    </p>
+                    <div class="code-demo" style="margin: 16px 0;">
+                        <div class="code-body" style="padding: 16px; font-size: 13px;">
+<span class="comment">// ❌ This is what we want to AVOID:</span>
+<span class="keyword">if</span> (<span class="variable">platform</span> === <span class="string">'mobile'</span>) {
+  <span class="keyword">await</span> <span class="function">handleBiometricPrompt</span>();
+  <span class="keyword">await</span> <span class="function">swipeToRefresh</span>();
+} <span class="keyword">else</span> {
+  <span class="keyword">await</span> <span class="function">waitForPageLoad</span>();
+  <span class="keyword">await</span> <span class="function">handleCookieConsent</span>();
+}
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 0;">
+                        Keep locators in sync via a <strong>shared npm package</strong> or simple copy when elements change. 
+                        The locators rarely change after initial setup — it's the flows that diverge.
+                    </p>
                 </div>
             </div>
             
@@ -1952,6 +2610,45 @@
             // Remove all highlights and tooltips
             document.querySelectorAll('.login-field').forEach(el => el.classList.remove('highlight'));
             document.querySelectorAll('.inspector-tooltip').forEach(el => el.classList.remove('show'));
+        }
+        
+        // Architecture toggle
+        function showArchitecture(type) {
+            // Update buttons
+            document.getElementById('btn-combined').classList.remove('active');
+            document.getElementById('btn-separate').classList.remove('active');
+            document.getElementById('btn-' + type).classList.add('active');
+            
+            // Update content
+            document.getElementById('arch-combined').classList.remove('active');
+            document.getElementById('arch-separate').classList.remove('active');
+            document.getElementById('arch-' + type).classList.add('active');
+        }
+        
+        // Folder structure toggle
+        function showFolderStructure(type) {
+            // Update buttons
+            document.getElementById('btn-folder-combined').classList.remove('active');
+            document.getElementById('btn-folder-separate').classList.remove('active');
+            document.getElementById('btn-folder-' + type).classList.add('active');
+            
+            // Update content
+            document.getElementById('folder-combined').classList.remove('active');
+            document.getElementById('folder-separate').classList.remove('active');
+            document.getElementById('folder-' + type).classList.add('active');
+        }
+        
+        // Code examples toggle
+        function showCodeExamples(type) {
+            // Update buttons
+            document.getElementById('btn-code-combined').classList.remove('active');
+            document.getElementById('btn-code-separate').classList.remove('active');
+            document.getElementById('btn-code-' + type).classList.add('active');
+            
+            // Update content
+            document.getElementById('code-combined').classList.remove('active');
+            document.getElementById('code-separate').classList.remove('active');
+            document.getElementById('code-' + type).classList.add('active');
         }
     </script>
 </body>
